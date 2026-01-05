@@ -1,5 +1,5 @@
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+
 
 gc = gspread.oauth(
     credentials_filename='./credentials.json',
