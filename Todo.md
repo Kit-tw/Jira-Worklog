@@ -1,0 +1,1 @@
+1. create Docker File , compose or maybe exe file?
