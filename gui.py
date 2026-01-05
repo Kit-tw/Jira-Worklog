@@ -10,7 +10,7 @@ root.title("Worklog")
 root.wm_attributes('-toolwindow', 'True')
 root.geometry("500x500")
 
-if util.find(constant.TOKEN_FILE,constant.FILE_PATH):
+if util.find(constant.TOKEN_PATH,constant.FILE_PATH):
     button = ttk.Button(root, text = "AccountFound ", bootstyle=INFO)
     button.pack(side=LEFT, padx=5, pady=10)
 else:
