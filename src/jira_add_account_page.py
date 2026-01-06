@@ -4,7 +4,7 @@ from ttkbootstrap.constants import *
 import constant.constant as constant
 import util.util as util
 
-
+# TODO : REFACTOR , made it easier to read.
 def jira_add_account_page(root):
     ttk.Label(root,text="Account not found",font=util.font(constant.TEXT_LG)).pack(side=TOP)
     ttk.Label(root,text="Step",font=util.font(constant.TEXT_SM)).pack(anchor='w')
