@@ -8,8 +8,7 @@ from src.jira_add_account_page import jira_add_account_page
 root = tk.Tk()
 root.title("Worklog")
 root.resizable(width=False,height=False)
-root.geometry("500x500")
-ttk.Frame(root, padding=(20,10,20,10))
+root.geometry("1000x500")
 
 if util.find(constant.TOKEN_PATH,constant.FILE_PATH):
     button = ttk.Button(root, text = "AccountFound ", bootstyle=INFO)
