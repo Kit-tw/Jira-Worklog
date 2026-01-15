@@ -1,23 +1,21 @@
-import tkinter as tk
-import ttkbootstrap as ttk
-from ttkbootstrap.constants import *
+import customtkinter
 import constant.constant as constant
 import util.util as util
-from src.jira_add_account_page import jira_add_account_page
+from src.jira_add_account_page import api_page
 
-root = tk.Tk()
-root.title("Worklog")
-root.resizable(width=False,height=False)
-root.geometry("1000x500")
+class App(customtkinter.CTk):
+    def __init__(self):
+        super().__init__()
 
-if util.find(constant.TOKEN_PATH,constant.FILE_PATH):
-    button = ttk.Button(root, text = "AccountFound ", bootstyle=INFO)
-    button.pack(side=LEFT, padx=5, pady=10)
-else:
-    jira_add_account_page(root)
-    
+        self.title("Worklog")
+        self.resizable(width=False,height=False)
+        self.geometry("1000x500")
 
+        if util.find(constant.TOKEN_PATH,constant.FILE_PATH):
+            button =  customtkinter.CTkButton(self, text= "Ready to log", bg_color="blue")
+            button.pack(padx=5, pady=10)
+        else:
+            api_page(self)
 
-
-
-root.mainloop()
+app = App()
+app.mainloop()
