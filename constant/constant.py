@@ -5,6 +5,7 @@ GOOGLE_API_CREDENTIALS_PATH : Final[str] = "./credentials.json"
 GOOGLE_API_AUTHORIZED_USER_PATH : Final[str] = "./authorized_user.json"
 TOKEN_PATH: Final[str] = "token1.json"
 FILE_PATH: Final[str] = "."
+STORAGE_PATH : Final[str] ="."
 TEXT_LG: Final[int] = 30
 TEXT_MD : Final[int] = 24
 TEXT_SM : Final[int] = 16

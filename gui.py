@@ -10,13 +10,15 @@ class App(ctk.CTk):
         self.title("Worklog")
         self.resizable(width=False,height=False)
         self.geometry("1000x500")
+        self.grid_rowconfigure(0,weight=1)
+        self.grid_columnconfigure(0,weight=1)
 
         if util.find(constant.TOKEN_PATH,constant.FILE_PATH):
             button =  ctk.CTkButton(self, text= "Ready to log", bg_color="blue")
             button.pack(padx=5, pady=10)
         else:
             api_page = ApiPage(self)
-            api_page.pack(padx=5, pady=10)
+            api_page.pack(fill="x",expand=False)
 
 app = App()
 app.mainloop()
