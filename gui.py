@@ -1,7 +1,8 @@
 import customtkinter as ctk
-import constant.constant as constant
-import util.util as util
+from constant.Enum import (STORAGE) 
+import util.common_util as common_util
 from src.jira_add_account_page import ApiPage
+from src.worklog_page import WorkLog
 
 class App(ctk.CTk):
     def __init__(self):
@@ -12,9 +13,9 @@ class App(ctk.CTk):
         self.geometry("1000x500")
 
 
-        if util.find(constant.TOKEN_PATH,constant.FILE_PATH):
-            button =  ctk.CTkButton(self, text= "Ready to log", bg_color="blue")
-            button.pack(padx=5, pady=10)
+        if common_util.find(STORAGE.STORAGE_PATH.value,STORAGE.TOKEN_FILE.value):
+            worklog_page = WorkLog(self)
+            worklog_page.pack(fill="both",expand=True)
         else:
             api_page = ApiPage(self)
             api_page.pack(fill="both",expand=True)
