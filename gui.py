@@ -13,7 +13,7 @@ class App(ctk.CTk):
         self.geometry("1000x500")
 
 
-        if common_util.find(STORAGE.STORAGE_PATH.value,STORAGE.TOKEN_FILE.value):
+        if not common_util.find(STORAGE.STORAGE_PATH.value,STORAGE.TOKEN_FILE.value):
             worklog_page = WorkLog(self)
             worklog_page.pack(fill="both",expand=True)
         else:

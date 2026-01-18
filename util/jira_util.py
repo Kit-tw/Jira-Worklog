@@ -6,8 +6,8 @@ from requests import Response
 import json
 class JiraUtil:
     def __init__(self):
-        
-        self.jira_data = common_util.read_json_file(STORAGE.TOKEN_FILE.value, STORAGE.STORAGE_PATH.value)
+        # TODO: FIX ERROR DIALOG HANDLELING
+        self.jira_data = common_util.read_json_file(STORAGE.STORAGE_PATH.value,STORAGE.TOKEN_FILE.value)
         self.mail = self.jira_data["jira_email"]
         self.api_token  = self.jira_data["jira_api"]
         self.prefix_url = self.jira_data["jira_prefix"]

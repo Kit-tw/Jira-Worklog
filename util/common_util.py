@@ -2,6 +2,9 @@ import os
 import customtkinter
 import webbrowser
 import json
+from util.gui_util import GuiUtil
+
+gui = GuiUtil()
 
 def find(path : str, name: str):
     for root, dirs, files in os.walk(path):
@@ -12,7 +15,7 @@ def font(size : int):
     return customtkinter.CTkFont(family="Arial",size=size)
 
 
-def opon_url(url):
+def open_url(url):
     webbrowser.open(url)
 
 def save_file(path: str, file : str, data : object) -> None:
@@ -20,14 +23,16 @@ def save_file(path: str, file : str, data : object) -> None:
         for root, dirs, files in os.walk(path):
             with open(file,'w') as file:
                 json.dump(data,file)
-    except:
-        #TODO : change print to open dialog show error / tell error occure
-        print("save_file exception occured")
+    except Exception as e:
+        # TODO: FIX DIALOG
+        gui.show_dialog("Error", "cancel", "Failed to save file", "OK")
 
 def read_json_file(path: str, filename: str) -> any :
     try:
-        with open(path,'r') as file:
+        full_path = os.path.join(path, filename)
+        with open(full_path,'r') as file:
             return json.load(file)
-    except:
-        print("Read file error occured")
+    except Exception as e:
+        gui.show_dialog("Error", "cancel", "Failed to read file", "OK")
+        return None
 
