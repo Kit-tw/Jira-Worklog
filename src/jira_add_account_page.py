@@ -14,6 +14,8 @@ class ApiPage(ctk.CTkFrame):
                self.show_title()
                self.body()
                self.submit_button()
+               self.grid_columnconfigure((0, 1), weight=1)
+               self.grid_rowconfigure((0, 1, 2), weight=1)
                 
 
         def show_title(self) -> None :
@@ -26,7 +28,7 @@ class ApiPage(ctk.CTkFrame):
 
                 #TODO : Make steps -> Object with option for hyperLink | text if equal hyperLink use hyperLink function
         def step_frame(self) -> None :
-                step_frame = ctk.CTkFrame(self,width=500)
+                step_frame = ctk.CTkFrame(self)
                 step_frame.grid(row=1,column=0,pady=10,padx=20)
                 step_frame.grid_propagate(0)
                 steps = [
@@ -45,14 +47,14 @@ class ApiPage(ctk.CTkFrame):
                                 label.grid(row=idx,column=0,sticky='w')
 
         def input_frame(self) -> None  :
-                input_frame = ctk.CTkFrame(self,width=500)
+                input_frame = ctk.CTkFrame(self)
                 input_frame.grid(row=1,column=1,pady=10,padx=40)
                 input_frame.grid_propagate(0)
                 input_title = ctk.CTkLabel(input_frame, text="Jira Issue URL or Key", font=util.font(constant.TEXT_MD))
                 input_title.grid(row=0,column=0)
                 self.email_entry = ctk.CTkEntry(input_frame, placeholder_text="e.g. exmaple@gmail.com", width=300 , height= 30)
                 self.email_entry.grid(row=1,column=0)
-                self.api_token_entry = ctk.CTkEntry(input_frame, placeholder_text="API token",width=300 , height= 30)
+                self.api_token_entry = ctk.CTkEntry(input_frame, placeholder_text="API token",width=300 , height= 30, show="*")
                 self.api_token_entry.grid(row=2,column=0)
                 self.jira_url_entry = ctk.CTkEntry(input_frame, placeholder_text="Jira Site e.g. company.atlassian.net",width=300 , height= 30)
                 self.jira_url_entry.grid(row=3,column=0)
