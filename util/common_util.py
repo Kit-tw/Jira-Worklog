@@ -4,7 +4,6 @@ import webbrowser
 import json
 from util.gui_util import GuiUtil
 
-gui = GuiUtil()
 
 def find(path : str, name: str):
     for root, dirs, files in os.walk(path):
@@ -24,8 +23,7 @@ def save_file(path: str, file : str, data : object) -> None:
             with open(file,'w') as file:
                 json.dump(data,file)
     except Exception as e:
-        # TODO: FIX DIALOG
-        gui.show_dialog("Error", "cancel", "Failed to save file", "OK")
+        GuiUtil().show_dialog("Error", "cancel", "Failed to save file", "OK")
 
 def read_json_file(path: str, filename: str) -> any :
     try:
@@ -33,6 +31,6 @@ def read_json_file(path: str, filename: str) -> any :
         with open(full_path,'r') as file:
             return json.load(file)
     except Exception as e:
-        gui.show_dialog("Error", "cancel", "Failed to read file", "OK")
+        GuiUtil().show_dialog("Error", "cancel", "Failed to read file", "OK")
         return None
 

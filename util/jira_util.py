@@ -4,6 +4,7 @@ import util.common_util as common_util
 from constant.Enum import (STORAGE, URL)
 from requests import Response
 import json
+from util.gui_util import GuiUtil
 class JiraUtil:
     def __init__(self):
         # TODO: FIX ERROR DIALOG HANDLELING
@@ -12,16 +13,20 @@ class JiraUtil:
         self.api_token  = self.jira_data["jira_api"]
         self.prefix_url = self.jira_data["jira_prefix"]
         self.full_url = self.get_jira_site()
+        self.gui = GuiUtil()
 
     #TODO : validate if user pass input as URL | key
     def fetch_issue(self,key):
         json_path = common_util.find(STORAGE.STORAGE_PATH.value, STORAGE.TOKEN_FILE.value)
         if(not json_path):
+            # TODO : UI for Error
             print("json api storage file is not exist")
-            return
+            return 
         response = self.get_jira_issue(URL.JIRA_ISSUE_PATH.value,key)
         if(response.status_code.__ne__(200)):
+            # TODO : UI for Error
             print("response GET issue error : " + response.text)
+            return
         return json.loads(response.text)["fields"]["summary"]
         
         
