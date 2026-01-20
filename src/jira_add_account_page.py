@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from constant.Enum import (TextSize, STORAGE,URL)
+from constant.Enum import (TEXTSIZE, STORAGE,URL)
 import util.common_util as common_util
 
 # TODO : REFACTOR , made it easier to read.
@@ -21,7 +21,7 @@ class ApiPage(ctk.CTkFrame):
                 
 
         def show_title(self) -> None :
-                title = ctk.CTkLabel(self,text="How to get API token",font=common_util.font(TextSize.TEXT_LG.value))
+                title = ctk.CTkLabel(self,text="How to get API token",font=common_util.font(TEXTSIZE.TEXT_LG.value))
                 title.grid(row = 0, column = 0, pady = 2)
 
         def body(self) -> None :
@@ -40,17 +40,17 @@ class ApiPage(ctk.CTkFrame):
                 ]
                 for idx, text in enumerate(steps):
                         if(idx == 0):
-                                label = ctk.CTkLabel(step_frame,text=text,font=common_util.font(TextSize.TEXT_SM.value),cursor="hand2")
+                                label = ctk.CTkLabel(step_frame,text=text,font=common_util.font(TEXTSIZE.TEXT_SM.value),cursor="hand2")
                                 label.bind("<Button-1>",lambda e:common_util.opon_url(URL.JIRA_GET_API_URL.value))
                                 label.grid(row=idx,column=0,sticky='w')
                         else:
-                                label = ctk.CTkLabel(step_frame,text=text, font=common_util.font(TextSize.TEXT_SM.value))
+                                label = ctk.CTkLabel(step_frame,text=text, font=common_util.font(TEXTSIZE.TEXT_SM.value))
                                 label.grid(row=idx,column=0,sticky='w')
 
         def input_frame(self) -> None  :
                 input_frame = ctk.CTkFrame(self)
                 input_frame.grid(row=1,column=1,pady=10,padx=40)
-                input_title = ctk.CTkLabel(input_frame, text="Jira Issue URL or Key", font=common_util.font(TextSize.TEXT_MD.value))
+                input_title = ctk.CTkLabel(input_frame, text="Jira Issue URL or Key", font=common_util.font(TEXTSIZE.TEXT_MD.value))
                 input_title.grid(row=0,column=0)
                 self.email_entry = ctk.CTkEntry(input_frame, placeholder_text="e.g. exmaple@gmail.com", width=300 , height= 30)
                 self.email_entry.grid(row=1,column=0)

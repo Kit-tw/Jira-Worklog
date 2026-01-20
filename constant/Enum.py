@@ -12,8 +12,12 @@ class STORAGE(Enum):
     STORAGE_PATH ="."
 
 
-
-class TextSize(Enum):
+class WIDGET(Enum):
+    PAD_X = 50
+    PAD_Y = 20
+    WIDTH = 40
+    HEIGHT = 40
+class TEXTSIZE(Enum):
     TEXT_LG = 30
     TEXT_MD = 24
     TEXT_SM = 16
