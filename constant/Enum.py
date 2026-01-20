@@ -3,6 +3,8 @@ from enum import Enum
 class URL(Enum):
     JIRA_GET_API_URL = "https://id.atlassian.com/manage-profile/security/api-tokens"
     JIRA_ISSUE_PATH = "/rest/api/3/issue/"
+    def JIRA_POST_INSERT_WORKLOG_PATH(key :str) -> str :
+        return f"/rest/api/3/issue/{key}/worklog"
 
 class STORAGE(Enum):
     GOOGLE_API_CREDENTIALS_FILE = "credentials.json"

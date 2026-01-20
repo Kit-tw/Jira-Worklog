@@ -21,7 +21,7 @@ class WorkLog(ctk.CTkFrame):
         self.issue_name=""
         self.input_frame()
         self.body()
-        self.hide_body_widgets()
+        # self.hide_body_widgets()
         self.grid_columnconfigure(0 , weight=1)
         self.grid_columnconfigure((1,2,3) , weight=2)
 
@@ -36,31 +36,29 @@ class WorkLog(ctk.CTkFrame):
         self.issue_name =  self.jira_util.fetch_issue(key)
         #TODO : if fetch_issue error hide_body_widget
         if self.issue_name:
-            self.issue_label.configure(text="Issue Name : " + key + " " + self.issue_name)
+            self.issue_label.configure(text="Issue Name : " + self.issue_name)
             self.show_body_widgets()
 
     def body(self):
         self.issue_label = ctk.CTkLabel(self, text="", font=common_util.font(TEXTSIZE.TEXT_MD.value), text_color="lightblue")
         self.issue_label.grid(row=self.ROW_ISSUE, column=0, sticky='nsew',columnspan=self.MAX_COL_SPAN)
 
-        self.time_label = ctk.CTkLabel(self, text="Time", font=common_util.font(TEXTSIZE.TEXT_SM.value))
+        self.time_label = ctk.CTkLabel(self, text="Date & Time", font=common_util.font(TEXTSIZE.TEXT_SM.value))
         self.time_label.grid(row=self.ROW_TIME, column=0, padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
 
-        #TODO : ADD Hover show "e.g. format 5w, 4d, 3h, 2m, 1s"
-        self.time_spend_entry = ctk.CTkEntry(self, placeholder_text="Time spend", height=WIDGET.HEIGHT.value)
-        self.time_spend_entry.grid(row=self.ROW_TIME, column=1, sticky='ew', padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
+        self.start_date_entry = ctk.CTkEntry(self, placeholder_text="Date", height=WIDGET.HEIGHT.value)
+        self.start_date_entry.grid(row=self.ROW_TIME, column=1, sticky='ew', padx=WIDGET.PAD_X.value)
 
-        self.time_remaining_entry = ctk.CTkEntry(self, placeholder_text="Time remaining", height=WIDGET.HEIGHT.value)
-        self.time_remaining_entry.grid(row=self.ROW_TIME, column=2 , sticky='w', padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
+        self.time_spend_entry = ctk.CTkEntry(self, placeholder_text="Time spend e.g. 2w, 1d, 3h, 20m, 16s", height=WIDGET.HEIGHT.value)
+        self.time_spend_entry.grid(row=self.ROW_TIME, column=2, sticky='ew', padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value,  columnspan=self.MAX_COL_SPAN)
 
-        self.start_label = ctk.CTkLabel(self, text="Date & Description", font=common_util.font(TEXTSIZE.TEXT_SM.value))
+
+        self.start_label = ctk.CTkLabel(self, text="Description", font=common_util.font(TEXTSIZE.TEXT_SM.value))
         self.start_label.grid(row=self.ROW_DATE, column=0, padx=WIDGET.PAD_X.value)
 
-        self.start_date_entry = ctk.CTkEntry(self, placeholder_text="Date", height=WIDGET.HEIGHT.value)
-        self.start_date_entry.grid(row=self.ROW_DATE, column=1, sticky='ew', padx=WIDGET.PAD_X.value)
 
         self.description_entry = ctk.CTkEntry(self,placeholder_text="Description", height=WIDGET.HEIGHT.value)
-        self.description_entry.grid(row=self.ROW_DATE, column=2, sticky='ew', padx=WIDGET.PAD_X.value, columnspan=self.MAX_COL_SPAN)
+        self.description_entry.grid(row=self.ROW_DATE, column=1, sticky='ew', padx=WIDGET.PAD_X.value, columnspan=self.MAX_COL_SPAN)
 
         self.automate_label = ctk.CTkLabel(self, text="Automate Worklog", font=common_util.font(TEXTSIZE.TEXT_SM.value))
         self.automate_label.grid(row=self.ROW_OPTIONS, column=0, padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)

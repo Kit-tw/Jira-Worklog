@@ -22,7 +22,7 @@ class JiraUtil:
             # TODO : UI for Error
             print("json api storage file is not exist")
             return 
-        response = self.get_jira_issue(URL.JIRA_ISSUE_PATH.value,key)
+        response = self.get_jira_issue(key)
         if(response.status_code.__ne__(200)):
             # TODO : UI for Error
             print("response GET issue error : " + response.text)
@@ -32,9 +32,9 @@ class JiraUtil:
         
 
     def get_jira_issue(self,
-                    path: str,
                     key : str
                     ) -> Response:
+        path = URL.JIRA_ISSUE_PATH.value
         url = self.full_url + path + key
         auth = HTTPBasicAuth(self.mail,self.api_token)
         headers = {
@@ -44,3 +44,35 @@ class JiraUtil:
 
     def get_jira_site(self) -> str:
         return "https://" + self.prefix_url + ".atlassian.net"
+    
+    def post_insert_worklog(self,
+                            issue_key : str,
+                            time_spend :str,
+                            date : str,
+                            description : str
+                            ):
+        path = URL.JIRA_POST_INSERT_WORKLOG_PATH(issue_key)
+        url = self.full_url + path
+        auth = HTTPBasicAuth(self.mail,self.api_token)
+        headers = {
+            "Accept" : "application/json",
+            "Content-Type": "application/json"
+        }
+        payload = json.dumps({
+            "comment" : {
+                "content":[
+                    {
+                    "content":[{
+                            "text":description,
+                            "type":"text"
+                            }],
+                    "type":"paragraph"
+                    }
+                    ],
+                    "type":"doc",
+                    "version":1
+            },
+            "started":date,
+            "timeSpent":time_spend
+        })
+        return requests.request("POST",url,data=payload,headers=headers,auth=auth)
