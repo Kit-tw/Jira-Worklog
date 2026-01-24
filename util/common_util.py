@@ -3,8 +3,7 @@ import customtkinter
 import webbrowser
 import json
 from util.gui_util import GuiUtil
-
-
+from datetime import datetime , timezone
 def find(path : str, name: str):
     for root, dirs, files in os.walk(path):
         if name in files:
@@ -34,3 +33,8 @@ def read_json_file(path: str, filename: str) -> any :
         GuiUtil().show_dialog("Error", "cancel", "Failed to read file", "OK")
         return None
 
+
+def date_str_to_iso(date_str) -> str:
+    dt = datetime.strptime(date_str, "%d/%m/%Y")
+    dt = dt.replace(tzinfo=timezone.utc)
+    return dt.strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "+0000"

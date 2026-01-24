@@ -12,8 +12,8 @@ class JiraUtil:
         self.mail = self.jira_data["jira_email"]
         self.api_token  = self.jira_data["jira_api"]
         self.prefix_url = self.jira_data["jira_prefix"]
-        self.full_url = self.get_jira_site()
         self.gui = GuiUtil()
+        self.full_url = self.get_jira_site()
 
     #TODO : validate if user pass input as URL | key
     def fetch_issue(self,key):
@@ -42,14 +42,11 @@ class JiraUtil:
         }
         return requests.request("GET",url,headers=headers,auth=auth)
 
-    def get_jira_site(self) -> str:
-        return "https://" + self.prefix_url + ".atlassian.net"
-    
     def post_insert_worklog(self,
                             issue_key : str,
                             time_spend :str,
                             date : str,
-                            description : str
+                            description : str | None
                             ):
         path = URL.JIRA_POST_INSERT_WORKLOG_PATH(issue_key)
         url = self.full_url + path
@@ -75,4 +72,10 @@ class JiraUtil:
             "started":date,
             "timeSpent":time_spend
         })
+        print("2021-01-17T12:34:00.000")
+        print(date)
         return requests.request("POST",url,data=payload,headers=headers,auth=auth)
+    
+    def get_jira_site(self) -> str:
+        return "https://" + self.prefix_url + ".atlassian.net"
+    

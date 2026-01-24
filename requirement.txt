@@ -3,3 +3,4 @@ ttkbootstrap
 gspread
 customtkinter
 CTkMessagebox
+CTkDateEntry
