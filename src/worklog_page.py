@@ -1,7 +1,8 @@
 import customtkinter as ctk
 from util.jira_util import JiraUtil
-from constant.Enum import (TEXTSIZE,WIDGET)
+from util.git_util import GitUtil
 import util.common_util as common_util
+from constant.Enum import (TEXTSIZE,WIDGET)
 from ctkdateentry import CTkDateEntry, CTkStringVar
 import re
 #TODO : NEW UI / grid configrue
@@ -20,7 +21,7 @@ class WorkLog(ctk.CTkFrame):
         super().__init__(parent)
         self.jira_util = JiraUtil()
         self.issue_name=""
-        self.date_entry = CTkStringVar(self)
+        self.date_entry = CTkStringVar(self, value= "Date")
         self.input_frame()
         self.body()
         # self.hide_body_widgets()
@@ -41,6 +42,7 @@ class WorkLog(ctk.CTkFrame):
             self.issue_label.configure(text="Issue Name : " + self.issue_name)
             self.show_body_widgets()
 
+    #TODO : Should use scroll bar for adding multiple log then move last grid section to footer
     def body(self):
         self.issue_label = ctk.CTkLabel(self, text="", font=common_util.font(TEXTSIZE.TEXT_MD.value), text_color="lightblue")
         self.issue_label.grid(row=self.ROW_ISSUE, column=0, sticky='nsew',columnspan=self.MAX_COL_SPAN)
@@ -65,7 +67,7 @@ class WorkLog(ctk.CTkFrame):
         self.automate_label = ctk.CTkLabel(self, text="Automate Worklog", font=common_util.font(TEXTSIZE.TEXT_SM.value))
         self.automate_label.grid(row=self.ROW_OPTIONS, column=0, padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
 
-        self.automate_options = ctk.CTkComboBox(self, values=["Manual","Git","Jira"])
+        self.automate_options = ctk.CTkComboBox(self, values=["Manual","Git","Jira"], command=self.combobox_callback)
         self.automate_options.grid(row=self.ROW_OPTIONS, column=1, padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
 
         self.insert_sheet = ctk.CTkCheckBox(self, text="Insert to google sheets", font=common_util.font(TEXTSIZE.TEXT_X_SM.value))
@@ -106,13 +108,12 @@ class WorkLog(ctk.CTkFrame):
             widget.grid()
 
     def insert_worklog(self) -> None:
-        print("Running")
         time_spend = self.time_spend_entry.get()
         date = self.date_entry.get()
         description = self.description_entry.get()
         issue_key = self.jira_url_entry.get()
         #TODO : add to constant / move to else
-        date_regex = "\\d{2}\\/\\d{2}\\/\\d{4}"
+        date_regex = "\\d{2}\\/\\d{2}\\/\\d{4}" #pattern dd/mm/yyyy (0-9)
         if(not issue_key):
             #TODO: Incase not found IssueKey
             return
@@ -123,6 +124,16 @@ class WorkLog(ctk.CTkFrame):
         response = self.jira_util.post_insert_worklog(issue_key,time_spend,date_time,description)
         print(response.text)
 
+    def combobox_callback(self,choice):
+        if(choice == "Git"):
+            return self.git_insert_entry()
+        if (choice == "Jira"):
+            return
+        return
+    def git_insert_entry(self):
+        git_util = GitUtil()
+        print(git_util.get_issueName())
+        print(git_util.get_git_detail())
 
 
 

@@ -1,5 +1,6 @@
 from enum import Enum
-
+import os 
+# TODO : CREATE bash file for running os.path.join(os.environ["USERPROFILE"], "Documents" locate where file store and Markdown file for document
 class URL(Enum):
     JIRA_GET_API_URL = "https://id.atlassian.com/manage-profile/security/api-tokens"
     JIRA_ISSUE_PATH = "/rest/api/3/issue/"
@@ -7,11 +8,13 @@ class URL(Enum):
         return f"/rest/api/3/issue/{key}/worklog"
 
 class STORAGE(Enum):
+    def GET_DOCUMENT_PATH() -> str:
+        return  os.path.join(os.environ["USERPROFILE"], "Documents") 
     GOOGLE_API_CREDENTIALS_FILE = "credentials.json"
     GOOGLE_API_AUTHORIZED_USER_FILE = "authorized_user.json"
     TOKEN_FILE = "token.json"
-    FILE_PATH = "."
-    STORAGE_PATH ="."
+    DIRECTORY_NAME = "Worklog"
+    STORAGE_PATH = GET_DOCUMENT_PATH() + "/" + DIRECTORY_NAME
 
 
 class WIDGET(Enum):

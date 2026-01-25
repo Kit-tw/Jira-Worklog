@@ -5,8 +5,9 @@ import util.common_util as common_util
 # TODO : REFACTOR , made it easier to read.
 # TODO : NEW UI 
 # TODO : make core function check for option hypertext, text, error (red color text)
-# TODO : validte if sending by url or [/w].atlassian.net 
+# TODO : validate if sending by url or [/w].atlassian.net 
 # TODO : function before add json to check if input is working by sending request if validate pass then sending to worklog_page
+# TODO : should save expire date of jira api ? because when it expired it not said that your API is expire
 class ApiPage(ctk.CTkFrame):
         def __init__(
                       self,
@@ -68,6 +69,7 @@ class ApiPage(ctk.CTkFrame):
                 api = self.api_token_entry.get()
                 url = self.jira_url_entry.get()
                 if(not email or not api or not url):
+                        #TODO : Error Dialog
                         ctk.CTkLabel(self,text="Please enter all input field.").grid(row=4,column=0)
                 else:
                         data = {
@@ -75,5 +77,5 @@ class ApiPage(ctk.CTkFrame):
                                 "jira_api" : api,
                                 "jira_prefix" : url 
                         }
-                        common_util.save_file(STORAGE.STORAGE_PATH.value,STORAGE.TOKEN_FILE,data)
+                        common_util.save_file(STORAGE.STORAGE_PATH.value,STORAGE.TOKEN_FILE.value,data)
                         
