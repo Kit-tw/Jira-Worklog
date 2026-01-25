@@ -40,6 +40,7 @@ class JiraUtil:
         headers = {
         "Accept": "application/json",
         }
+        #TODO: handle response?
         return requests.request("GET",url,headers=headers,auth=auth)
 
     def post_insert_worklog(self,
@@ -72,8 +73,7 @@ class JiraUtil:
             "started":date,
             "timeSpent":time_spend
         })
-        print("2021-01-17T12:34:00.000")
-        print(date)
+        #TODO: handle response?
         return requests.request("POST",url,data=payload,headers=headers,auth=auth)
     
     def get_jira_site(self) -> str:

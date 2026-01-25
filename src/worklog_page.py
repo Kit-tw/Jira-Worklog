@@ -43,6 +43,7 @@ class WorkLog(ctk.CTkFrame):
             self.show_body_widgets()
 
     #TODO : Should use scroll bar for adding multiple log then move last grid section to footer
+    #TODO : IF you add scroll bar you have to add delete button for if section > 1
     def body(self):
         self.issue_label = ctk.CTkLabel(self, text="", font=common_util.font(TEXTSIZE.TEXT_MD.value), text_color="lightblue")
         self.issue_label.grid(row=self.ROW_ISSUE, column=0, sticky='nsew',columnspan=self.MAX_COL_SPAN)
@@ -66,7 +67,8 @@ class WorkLog(ctk.CTkFrame):
 
         self.automate_label = ctk.CTkLabel(self, text="Automate Worklog", font=common_util.font(TEXTSIZE.TEXT_SM.value))
         self.automate_label.grid(row=self.ROW_OPTIONS, column=0, padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
-
+        #TODO : IF select Git can choose maximum hour for automate insert and if select git the max range where section can have is 5
+        #TODO : Jira can check from history status
         self.automate_options = ctk.CTkComboBox(self, values=["Manual","Git","Jira"], command=self.combobox_callback)
         self.automate_options.grid(row=self.ROW_OPTIONS, column=1, padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
 
