@@ -27,3 +27,6 @@ class TEXTSIZE(Enum):
     TEXT_MD = 24
     TEXT_SM = 16
     TEXT_X_SM = 14
+
+class REGEX(Enum):
+    DATE = "\\d{2}\\/\\d{2}\\/\\d{4}" #pattern dd/mm/yyyy (0-9)

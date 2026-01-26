@@ -2,8 +2,9 @@ import customtkinter as ctk
 from util.jira_util import JiraUtil
 from util.git_util import GitUtil
 from util.gui_util import GuiUtil
+from src.google_api_add_page import GoogleApiPage
 import util.common_util as common_util
-from constant.Enum import (TEXTSIZE,WIDGET)
+from constant.Enum import (TEXTSIZE,WIDGET,REGEX,STORAGE)
 from ctkdateentry import CTkDateEntry, CTkStringVar
 import re
 #TODO : NEW UI / grid configrue
@@ -22,6 +23,8 @@ class WorkLog(ctk.CTkFrame):
         super().__init__(parent)
         self.jira_util = JiraUtil()
         self.gui_util = GuiUtil()
+        self.api_authorized = common_util.find(STORAGE.STORAGE_PATH.value,STORAGE.GOOGLE_API_AUTHORIZED_USER_FILE.value)
+        self.api_credentials =  common_util.find(STORAGE.STORAGE_PATH.value,STORAGE.GOOGLE_API_CREDENTIALS_FILE.value)
         self.issue_name=""
         self.date_entry = CTkStringVar(self, value= "Date")
         self.input_frame()
@@ -73,7 +76,7 @@ class WorkLog(ctk.CTkFrame):
         self.automate_options = ctk.CTkComboBox(self, values=["Manual","Git","Jira"], command=self.combobox_callback)
         self.automate_options.grid(row=self.ROW_OPTIONS, column=1, padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
 
-        self.insert_sheet = ctk.CTkCheckBox(self, text="Insert to google sheets", font=common_util.font(TEXTSIZE.TEXT_X_SM.value))
+        self.insert_sheet = ctk.CTkCheckBox(self, text="Insert to google sheets", font=common_util.font(TEXTSIZE.TEXT_X_SM.value), command=self.checkbox_callback)
         self.insert_sheet.grid(row=self.ROW_OPTIONS, column=2, padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
 
         self.confirm_btn = ctk.CTkButton(self, text="Confirm & Log Work", height=WIDGET.HEIGHT.value, command=self.insert_worklog)
@@ -115,18 +118,41 @@ class WorkLog(ctk.CTkFrame):
         date = self.date_entry.get()
         description = self.description_entry.get()
         issue_key = self.jira_url_entry.get()
+        is_insert_sheet = self.insert_sheet.get()
         #TODO : add to constant / move to else
-        date_regex = "\\d{2}\\/\\d{2}\\/\\d{4}" #pattern dd/mm/yyyy (0-9)
         if(not issue_key):
             self.gui_util.show_dialog("Error", "cancel", "Issue Key is not found", "OK")
             return
-        if(not time_spend or not re.match(date_regex,date)):
+        if(not time_spend or not re.match(REGEX.DATE.value,date)):
             self.gui_util.show_dialog("Error", "cancel", "Date and Time field required", "OK")
             return
+        if(is_insert_sheet):
+            self.insert_sheet()
         date_time = common_util.date_str_to_iso(date)
-        #TODO : handle response
-        response = self.jira_util.post_insert_worklog(issue_key,time_spend,date_time,description)
-        print(response.text)
+        # TODO : handle response if success provide JIRA URL if checkbox is check provide link to google sheets
+        # response = self.jira_util.post_insert_worklog(issue_key,time_spend,date_time,description)
+        # print(response.text)
+
+    def insert_sheet(self):
+        if(not self.api_authorized or not self.api_credentials):
+            #TODO : Throw to insert google API page 
+            return
+    
+    def checkbox_callback(self):
+        checkbox_value = self.insert_sheet.get()
+        print(checkbox_value)
+        print(self.api_authorized)
+        print(self.api_credentials)
+        #TODO : Find a way to create new page instead of using this grid
+        if(checkbox_value and (not self.api_authorized or not self.api_credentials)):
+            GoogleApiPage(self).grid(
+            row=0,
+            column=0,
+            rowspan=10,
+            columnspan=self.MAX_COL_SPAN+1,
+            sticky="nsew"
+        )
+            
 
     def combobox_callback(self,choice):
         if(choice == "Git"):
@@ -134,6 +160,7 @@ class WorkLog(ctk.CTkFrame):
         if (choice == "Jira"):
             return
         return
+    
     def git_insert_entry(self):
         git_util = GitUtil()
         print(git_util.get_issueName())
