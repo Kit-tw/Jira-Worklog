@@ -1,6 +1,7 @@
 from enum import Enum
 import os 
 # TODO : CREATE bash file for running os.path.join(os.environ["USERPROFILE"], "Documents" locate where file store and Markdown file for document
+# TODO : add ICON tips and hover show storage location -> os.path.join(os.environ["USERPROFILE"], "Documents"
 class URL(Enum):
     JIRA_GET_API_URL = "https://id.atlassian.com/manage-profile/security/api-tokens"
     JIRA_ISSUE_PATH = "/rest/api/3/issue/"
