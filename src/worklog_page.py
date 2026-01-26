@@ -6,6 +6,8 @@ import util.common_util as common_util
 from constant.Enum import (TEXTSIZE,WIDGET)
 from ctkdateentry import CTkDateEntry, CTkStringVar
 import re
+
+#TODO : ADD BUTTON FOR DELETE STORAGE FILE
 #TODO : NEW UI / grid configrue
 class WorkLog(ctk.CTkFrame):
     ROW_INPUT = 0
