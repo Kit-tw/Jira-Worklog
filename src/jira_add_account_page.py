@@ -1,7 +1,7 @@
 import customtkinter as ctk
 from constant.Enum import (TEXTSIZE, STORAGE,URL)
 import util.common_util as common_util
-
+from util.gui_util import GuiUtil
 # TODO : REFACTOR , made it easier to read.
 # TODO : NEW UI 
 # TODO : make core function check for option hypertext, text, error (red color text)
@@ -14,6 +14,7 @@ class ApiPage(ctk.CTkFrame):
                       parent : any
                       ):
                super().__init__(parent)
+               self.gui_util = GuiUtil()
                self.show_title()
                self.body()
                self.submit_button()
@@ -69,8 +70,7 @@ class ApiPage(ctk.CTkFrame):
                 api = self.api_token_entry.get()
                 url = self.jira_url_entry.get()
                 if(not email or not api or not url):
-                        #TODO : Error Dialog
-                        ctk.CTkLabel(self,text="Please enter all input field.").grid(row=4,column=0)
+                        self.gui_util.show_dialog("Error", "cancel", "Please enter all input field.", "OK")
                 else:
                         data = {
                                 "jira_email" : email,

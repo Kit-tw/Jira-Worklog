@@ -1,6 +1,7 @@
 import customtkinter as ctk
 from util.jira_util import JiraUtil
 from util.git_util import GitUtil
+from util.gui_util import GuiUtil
 import util.common_util as common_util
 from constant.Enum import (TEXTSIZE,WIDGET)
 from ctkdateentry import CTkDateEntry, CTkStringVar
@@ -20,6 +21,7 @@ class WorkLog(ctk.CTkFrame):
                   parent : any):
         super().__init__(parent)
         self.jira_util = JiraUtil()
+        self.gui_util = GuiUtil()
         self.issue_name=""
         self.date_entry = CTkStringVar(self, value= "Date")
         self.input_frame()
@@ -37,7 +39,6 @@ class WorkLog(ctk.CTkFrame):
     def fetch_command(self, key:str):
         self.issue_name = ""
         self.issue_name =  self.jira_util.fetch_issue(key)
-        #TODO : if fetch_issue error hide_body_widget
         if self.issue_name:
             self.issue_label.configure(text="Issue Name : " + self.issue_name)
             self.show_body_widgets()
@@ -117,12 +118,13 @@ class WorkLog(ctk.CTkFrame):
         #TODO : add to constant / move to else
         date_regex = "\\d{2}\\/\\d{2}\\/\\d{4}" #pattern dd/mm/yyyy (0-9)
         if(not issue_key):
-            #TODO: Incase not found IssueKey
+            self.gui_util.show_dialog("Error", "cancel", "Issue Key is not found", "OK")
             return
         if(not time_spend or not re.match(date_regex,date)):
-            #TODO: Show Text Date and Time field required
+            self.gui_util.show_dialog("Error", "cancel", "Date and Time field required", "OK")
             return
         date_time = common_util.date_str_to_iso(date)
+        #TODO : handle response
         response = self.jira_util.post_insert_worklog(issue_key,time_spend,date_time,description)
         print(response.text)
 

@@ -19,12 +19,12 @@ class JiraUtil:
     def fetch_issue(self,key):
         json_path = common_util.find(STORAGE.STORAGE_PATH.value, STORAGE.TOKEN_FILE.value)
         if(not json_path):
-            # TODO : UI for Error
-            print("json api storage file is not exist")
+            self.gui.show_dialog("Error", "cancel", f"json api storage file at {json_path} is not exist", "OK")
             return 
         response = self.get_jira_issue(key)
         if(response.status_code.__ne__(200)):
-            # TODO : UI for Error
+            #TODO : Test error dialog
+            self.gui.show_dialog("Error", "cancel", f"Fetch issue error : {response.text}", "OK")
             print("response GET issue error : " + response.text)
             return
         return json.loads(response.text)["fields"]["summary"]
@@ -40,7 +40,6 @@ class JiraUtil:
         headers = {
         "Accept": "application/json",
         }
-        #TODO: handle response?
         return requests.request("GET",url,headers=headers,auth=auth)
 
     def post_insert_worklog(self,
@@ -73,7 +72,6 @@ class JiraUtil:
             "started":date,
             "timeSpent":time_spend
         })
-        #TODO: handle response?
         return requests.request("POST",url,data=payload,headers=headers,auth=auth)
     
     def get_jira_site(self) -> str:
