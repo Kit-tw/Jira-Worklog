@@ -25,6 +25,7 @@ class WorkLog(ctk.CTkFrame):
         self.gui_util = GuiUtil()
         self.api_authorized = common_util.find(STORAGE.STORAGE_PATH.value,STORAGE.GOOGLE_API_AUTHORIZED_USER_FILE.value)
         self.api_credentials =  common_util.find(STORAGE.STORAGE_PATH.value,STORAGE.GOOGLE_API_CREDENTIALS_FILE.value)
+        self.toplevel_google_api = None
         self.issue_name=""
         self.date_entry = CTkStringVar(self, value= "Date")
         self.input_frame()
@@ -119,13 +120,14 @@ class WorkLog(ctk.CTkFrame):
         description = self.description_entry.get()
         issue_key = self.jira_url_entry.get()
         is_insert_sheet = self.insert_sheet.get()
-        #TODO : add to constant / move to else
+
         if(not issue_key):
-            self.gui_util.show_dialog("Error", "cancel", "Issue Key is not found", "OK")
+            self.gui_util.show_dialog("Error", "cancel", "Issue Key is not found", options="OK")
             return
         if(not time_spend or not re.match(REGEX.DATE.value,date)):
-            self.gui_util.show_dialog("Error", "cancel", "Date and Time field required", "OK")
+            self.gui_util.show_dialog("Error", "cancel", "Date and Time field required", options="OK")
             return
+        #TODO : IF TOP LEVEL IS Aleady OPEN then check the path in this too
         if(is_insert_sheet):
             self.insert_sheet()
         date_time = common_util.date_str_to_iso(date)
@@ -143,16 +145,19 @@ class WorkLog(ctk.CTkFrame):
         print(checkbox_value)
         print(self.api_authorized)
         print(self.api_credentials)
-        #TODO : Find a way to create new page instead of using this grid
-        if(checkbox_value and (not self.api_authorized or not self.api_credentials)):
-            GoogleApiPage(self).grid(
-            row=0,
-            column=0,
-            rowspan=10,
-            columnspan=self.MAX_COL_SPAN+1,
-            sticky="nsew"
-        )
+        if(checkbox_value and self.toplevel_google_api is None and (not self.api_credentials)):
+            dialog_msg = self.gui_util.show_dialog("Warning","warning","google API in storage not found", option_1="Add", option_2="Exit")
+            if(dialog_msg.get() == "Add"):
+                self.open_toplevel()
+            else:
+                self.insert_sheet.deselect()
+                
             
+    def open_toplevel(self):
+        if self.toplevel_google_api is None or not self.toplevel_google_api.winfo_exists():
+            self.toplevel_google_api = GoogleApiPage(self) 
+        else:
+            self.toplevel_google_api.focus() 
 
     def combobox_callback(self,choice):
         if(choice == "Git"):

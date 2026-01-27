@@ -10,11 +10,15 @@ class URL(Enum):
 class STORAGE(Enum):
     def GET_DOCUMENT_PATH() -> str:
         return  os.path.join(os.environ["USERPROFILE"], "Documents") 
+    DIRECTORY_NAME = "Worklog"
     GOOGLE_API_CREDENTIALS_FILE = "credentials.json"
     GOOGLE_API_AUTHORIZED_USER_FILE = "authorized_user.json"
     TOKEN_FILE = "token.json"
-    DIRECTORY_NAME = "Worklog"
-    STORAGE_PATH = GET_DOCUMENT_PATH() + "/" + DIRECTORY_NAME
+    STORAGE_PATH = f"{GET_DOCUMENT_PATH()}/{DIRECTORY_NAME}"
+    #TODO : SHOULD YOU REFACTOR COMMON UTIL to use only path?
+    TOKEN_PATH = f"{STORAGE_PATH}/{TOKEN_FILE}"
+    GOOGLE_API_CREDENTIALS_PATH = f"{STORAGE_PATH}/{GOOGLE_API_CREDENTIALS_FILE}"
+    GOOGLE_API_AUTHORIZED_USER_PATH = f"{STORAGE_PATH}/{GOOGLE_API_AUTHORIZED_USER_FILE}"
 
 
 class WIDGET(Enum):
