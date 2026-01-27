@@ -2,6 +2,7 @@ import customtkinter as ctk
 from util.jira_util import JiraUtil
 from util.git_util import GitUtil
 from util.gui_util import GuiUtil
+from util.sheets_util import SheetsUtil
 from src.google_api_add_page import GoogleApiPage
 import util.common_util as common_util
 from constant.Enum import (TEXTSIZE,WIDGET,REGEX,STORAGE)
@@ -77,6 +78,7 @@ class WorkLog(ctk.CTkFrame):
         self.automate_options = ctk.CTkComboBox(self, values=["Manual","Git","Jira"], command=self.combobox_callback)
         self.automate_options.grid(row=self.ROW_OPTIONS, column=1, padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
 
+        #TODO: ADD when having sheet ID add label link to that spread sheet link
         self.insert_sheet = ctk.CTkCheckBox(self, text="Insert to google sheets", font=common_util.font(TEXTSIZE.TEXT_X_SM.value), command=self.checkbox_callback)
         self.insert_sheet.grid(row=self.ROW_OPTIONS, column=2, padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
 
@@ -121,30 +123,30 @@ class WorkLog(ctk.CTkFrame):
         issue_key = self.jira_url_entry.get()
         is_insert_sheet = self.insert_sheet.get()
 
-        if(not issue_key):
-            self.gui_util.show_dialog("Error", "cancel", "Issue Key is not found", options="OK")
-            return
-        if(not time_spend or not re.match(REGEX.DATE.value,date)):
-            self.gui_util.show_dialog("Error", "cancel", "Date and Time field required", options="OK")
-            return
+        # if(not issue_key):
+        #     self.gui_util.show_dialog("Error", "cancel", "Issue Key is not found", options="OK")
+        #     return
+        # if(not time_spend or not re.match(REGEX.DATE.value,date)):
+        #     self.gui_util.show_dialog("Error", "cancel", "Date and Time field required", options="OK")
+        #     return
         #TODO : IF TOP LEVEL IS Aleady OPEN then check the path in this too
-        if(is_insert_sheet):
-            self.insert_sheet()
-        date_time = common_util.date_str_to_iso(date)
+        # date_time = common_util.date_str_to_iso(date)
         # TODO : handle response if success provide JIRA URL if checkbox is check provide link to google sheets
+        # TODO : IF DIALOG "OK" is click clear all input field
         # response = self.jira_util.post_insert_worklog(issue_key,time_spend,date_time,description)
         # print(response.text)
+        if(is_insert_sheet):
+            self.insert_to_sheet()
 
-    def insert_sheet(self):
+    #TODO : SHOULD CHECK EXIST Sheets too
+    def insert_to_sheet(self):
         if(not self.api_authorized or not self.api_credentials):
             #TODO : Throw to insert google API page 
             return
+        SheetsUtil()
     
     def checkbox_callback(self):
         checkbox_value = self.insert_sheet.get()
-        print(checkbox_value)
-        print(self.api_authorized)
-        print(self.api_credentials)
         if(checkbox_value and self.toplevel_google_api is None and (not self.api_credentials)):
             dialog_msg = self.gui_util.show_dialog("Warning","warning","google API in storage not found", option_1="Add", option_2="Exit")
             if(dialog_msg.get() == "Add"):

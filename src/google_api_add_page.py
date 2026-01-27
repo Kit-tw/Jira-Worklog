@@ -2,6 +2,9 @@ import customtkinter as ctk
 import util.common_util as common_util
 from constant.Enum import (STORAGE)
 from customtkinter import filedialog
+
+#TODO : UI HOW TO ADD API / LINK TO https://docs.gspread.org/en/latest/oauth2.html#for-end-users-using-oauth-client-id
+#TODO : DON'T FORGET TO ADD TEST USER BY YOUR EMAIL IN Audience
 class GoogleApiPage(ctk.CTkToplevel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

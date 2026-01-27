@@ -36,6 +36,7 @@ def save_file(path: str, file : str, data : object) -> None:
         full_path = os.path.join(path,file)
         with open(full_path,'w') as file:
             json.dump(data,file)
+            GuiUtil().show_dialog("Success", "check", f"file has been saved at {full_path}", options="OK")
     except Exception as e:
         print(e)
         GuiUtil().show_dialog("Error", "cancel", "Failed to save file", options="OK")
