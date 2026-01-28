@@ -70,7 +70,7 @@ class ApiPage(ctk.CTkFrame):
                 api = self.api_token_entry.get()
                 url = self.jira_url_entry.get()
                 if(not email or not api or not url):
-                        self.gui_util.show_dialog("Error", "cancel", "Please enter all input field.", "OK")
+                        self.gui_util.show_dialog("Error", "cancel", "Please enter all input field.",options="OK")
                 else:
                         data = {
                                 "jira_email" : email,

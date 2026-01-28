@@ -19,7 +19,7 @@ class GitUtil:
         try:
             return Repo(self.cur_dir).active_branch.name
         except Exception as e:
-            self.gui_util.show_dialog("Error", "cancel", "Current directory is not have .git", "OK")
+            self.gui_util.show_dialog("Error", "cancel", "Current directory is not have .git", options="OK")
 
     def get_issue_key(self) -> str:
         return self.jira_util.fetch_issue(self.get_issueName())

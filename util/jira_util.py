@@ -19,12 +19,12 @@ class JiraUtil:
     def fetch_issue(self,key):
         json_path = common_util.find(STORAGE.STORAGE_PATH.value, STORAGE.TOKEN_FILE.value)
         if(not json_path):
-            self.gui.show_dialog("Error", "cancel", f"json api storage file at {json_path} is not exist", "OK")
+            self.gui.show_dialog("Error", "cancel", f"json api storage file at {json_path} is not exist", options="OK")
             return 
         response = self.get_jira_issue(key)
         if(response.status_code.__ne__(200)):
             #TODO : Test error dialog
-            self.gui.show_dialog("Error", "cancel", f"Fetch issue error : {response.text}", "OK")
+            self.gui.show_dialog("Error", "cancel", f"Fetch issue error : {response.text}", options="OK")
             print("response GET issue error : " + response.text)
             return
         return json.loads(response.text)["fields"]["summary"]
