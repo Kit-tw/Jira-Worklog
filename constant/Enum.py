@@ -37,3 +37,5 @@ class TEXTSIZE(Enum):
 
 class REGEX(Enum):
     DATE = "\\d{2}\\/\\d{2}\\/\\d{4}" #pattern dd/mm/yyyy (0-9)
+    HOUR_JIRA = "\\d+[Hh]" #pattern [0-9]+h
+    MINUTE_JIRA = "\\d+[Mm]" #pattern [0-9]+h

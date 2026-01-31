@@ -2,7 +2,8 @@ import gspread
 from datetime import datetime
 import util.common_util as common_util
 from util.gui_util import GuiUtil
-from constant.Enum import (STORAGE,URL)
+from constant.Enum import (STORAGE,URL,REGEX)
+import re
 #TODO : ADD HANDLE ERROR
 class SheetsUtil:
     def __init__(self,
@@ -13,11 +14,10 @@ class SheetsUtil:
         self.home_sheetname = "Home"
         self.template_sheetname = "Template"
         self.jira_issue_sheetname = "jira-issue"
-        self.key = "WFW-100"
-        self.date = "14/01/2026"
-        self.time = "1h 3m"
-        self.desciprtion = "Testing"
-        print("RunUtil")
+        self.key = key
+        self.date = date
+        self.time = time
+        self.description = description
         self.dt = datetime.strptime(self.date, "%d/%m/%Y")
         self.gc = self.authenticate()
         self.sheet_id = self.get_sheet_id()
@@ -67,53 +67,60 @@ class SheetsUtil:
 
     def worklog_add(self):
         worklog_sheet = self.worklog_get_sheet()
-        date_cell_pattern = f"{self.dt.year}-{self.dt.month:02d}-{self.dt.day:02d}"
-        print(date_cell_pattern)
-        find_cell =  worklog_sheet.findall(date_cell_pattern)
-        empty_comment_row = None
-
-        for cell in find_cell:
-            comment_cell = worklog_sheet.cell(cell.row,4)
-            print(f"Loop {comment_cell.address} : {comment_cell.value}")
-            if(comment_cell.value is None):
-                empty_comment_row = comment_cell.row
-                break
-
-        if(empty_comment_row is None):
-            print("Can't Find")
-            src_row = find_cell[-1].row
-            dest_row = find_cell[-1].row + 1
-            empty_comment_row = dest_row
-            print(f"src_row : {src_row} dest_row = {dest_row}")
-            self.worklog_sheet_new_row(worklog_sheet,src_row,dest_row)
-
-        print(f"Empty : {empty_comment_row}")
+        empty_comment_row = self.worklog_find_empty_row(worklog_sheet)
         self.worklog_insert_cell(worklog_sheet,empty_comment_row)
 
-    def worklog_insert_cell(self,
-                            worksheet : gspread.Worksheet,
-                            row : str):
-        SUMMARY_DROPDOWN_COL = 4 #"D" col
-        COMMENT_COL = 5 #"E" col
-        HOUR_COL = 6 #"F" col
-        MINUTE_COL = 7 #"G" col
-        REMARK_COL = 11 #"K" col
-        OPTION_COL = 12 #"L" col
-        WORKLOG_LINK_COL = 13 #"M" col
-        summary_value = self.jira_issue_get_summary()
-        description_value = self.desciprtion
-        hour_value = 1
-        minute_value = 0
-        remark_value = "Success"
-        option_value = "Add"
-        worklog_link_value = self.jira_issue_get_worklog_link()
-        worksheet.update_cell(row,SUMMARY_DROPDOWN_COL,summary_value)
-        worksheet.update_cell(row,COMMENT_COL,description_value)
-        worksheet.update_cell(row,HOUR_COL,hour_value)
-        worksheet.update_cell(row,MINUTE_COL,minute_value)
-        worksheet.update_cell(row,REMARK_COL,remark_value)
-        worksheet.update_cell(row,OPTION_COL,option_value)
-        worksheet.update_cell(row,WORKLOG_LINK_COL,worklog_link_value)
+    def worklog_find_empty_row(self,
+                               worksheet: gspread.Worksheet):
+        date_cell_pattern = f"{self.dt.year}-{self.dt.month:02d}-{self.dt.day:02d}"
+        find_cell =  worksheet.findall(date_cell_pattern)
+        for cell in find_cell:
+            comment_cell = worksheet.cell(cell.row,4)
+            print(f"Loop {comment_cell.address} : {comment_cell.value}")
+            if(comment_cell.value is None):
+                return comment_cell.row
+
+        print("debug: All Row have been inserted, Duplicate Row.")
+        src_row = find_cell[-1].row
+        dest_row = find_cell[-1].row + 1
+        self.worklog_sheet_new_row(worksheet,src_row,dest_row)
+        return dest_row
+
+    def worklog_insert_cell(
+        self,
+        worksheet: gspread.Worksheet,
+        row: int,
+    ):
+        # Column indices (1-based)
+        COL = {
+            "summary": 4,      # D
+            "comment": 5,      # E
+            "hour": 6,         # F
+            "minute": 7,       # G
+            "remark": 11,      # K
+            "option": 12,      # L
+            "worklog_link": 13 # M
+        }
+
+        # Build values
+        values = {
+            COL["summary"]: self.jira_issue_get_summary(),
+            COL["comment"]: self.description,
+            COL["hour"]: re.search(REGEX.HOUR_JIRA.value, self.time).group(0).replace("h", ""),
+            COL["minute"]: re.search(REGEX.MINUTE_JIRA.value, self.time).group(0).replace("m", ""),
+            COL["remark"]: "Success",
+            COL["option"]: "Add",
+            COL["worklog_link"]: self.jira_issue_get_worklog_link(),
+        }
+
+        worksheet.batch_update([
+            {
+                "range": f"{gspread.utils.rowcol_to_a1(row, col)}",
+                "values": [[value]],
+            }
+            for col, value in values.items()
+        ])
+        print(f"debug: Successfully insert worklog at Row : {row}")
 
 
         
@@ -133,6 +140,7 @@ class SheetsUtil:
             worksheet.batch_clear([
                 f"{col}{dest_row}" for col in CLEAR_COLUMNS
             ])
+            print("debug: Successfully Duplicate row")
 
 
     def worklog_get_sheet(self) -> gspread.Worksheet:
