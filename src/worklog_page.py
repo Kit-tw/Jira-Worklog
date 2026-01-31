@@ -136,14 +136,18 @@ class WorkLog(ctk.CTkFrame):
         # response = self.jira_util.post_insert_worklog(issue_key,time_spend,date_time,description)
         # print(response.text)
         if(is_insert_sheet):
-            self.insert_to_sheet()
+            self.insert_to_sheet(issue_key,date,time_spend,description)
 
     #TODO : SHOULD CHECK EXIST Sheets too
-    def insert_to_sheet(self):
+    def insert_to_sheet(self,
+                        issue_key : str,
+                        date : str,
+                        time_spend : str,
+                        description : str):
         if(not self.api_authorized or not self.api_credentials):
             #TODO : Throw to insert google API page 
             return
-        SheetsUtil()
+        SheetsUtil(key=issue_key,date=date,time=time_spend,description=description)
     
     def checkbox_callback(self):
         checkbox_value = self.insert_sheet.get()
