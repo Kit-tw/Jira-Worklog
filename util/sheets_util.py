@@ -2,6 +2,7 @@ import gspread
 from datetime import datetime
 import util.common_util as common_util
 from util.gui_util import GuiUtil
+from util.jira_util import JiraUtil
 from constant.Enum import (STORAGE,URL,REGEX)
 import re
 #TODO : ADD HANDLE ERROR
@@ -11,9 +12,9 @@ class SheetsUtil:
                  date : str,
                  time : str,
                  description : str):
-        self.home_sheetname = "Home"
-        self.template_sheetname = "Template"
-        self.jira_issue_sheetname = "jira-issue"
+        self.HOME_SHEETNAME = "Home"
+        self.TEMPLATE_SHEETNAME = "Template"
+        self.JIRA_ISSUE_SHEETNAME = "jira-issue"
         self.key = key
         self.date = date
         self.time = time
@@ -43,25 +44,49 @@ class SheetsUtil:
 
     def copy_sheets(self):
         new_spreadsheet = self.gc.copy(URL.SPREAD_SHEET_ID.value,title=URL.SPREAD_SHEET_NAME.value)
-        print(new_spreadsheet.id)
         data = {"spreadsheetId" : new_spreadsheet.id}
         common_util.save_file(STORAGE.STORAGE_PATH.value,STORAGE.INFORMATION_FILE.value,data)
+        self.home_add()
         return new_spreadsheet.id
 
+    def home_add(self):
+        home_worksheet = self.worksheet.worksheet(self.HOME_SHEETNAME)
+        jira_util = JiraUtil() 
+        ROW = {
+            "email": 3, # D
+            "api_token": 4, # E
+            "jira_site": 5, # F
+        }
+
+        # Build values
+        values = {
+            ROW["email"]: jira_util.mail,
+            ROW["api_token"]: jira_util.api_token,
+            ROW["jira_site"]: jira_util.full_url
+        }
+        home_worksheet.batch_update([
+            {
+                "range": f"{gspread.utils.rowcol_to_a1(row, 2)}",
+                "values": [[value]],
+            }
+            for row, value in values.items()
+        ])
+
+
     def jira_issue_add(self):
-        jira_sheet =  self.worksheet.worksheet(self.jira_issue_sheetname)
+        jira_sheet =  self.worksheet.worksheet(self.JIRA_ISSUE_SHEETNAME)
         lastrow = int(jira_sheet.acell('V2').value) + 1
         jira_sheet.update_cell(lastrow,1,self.key)
 
     def jira_issue_get_summary(self):
         SUMMARY_DROPDOWN_COL = 5 # "E" Col
-        jira_sheet = self.worksheet.worksheet(self.jira_issue_sheetname)
+        jira_sheet = self.worksheet.worksheet(self.JIRA_ISSUE_SHEETNAME)
         issue = jira_sheet.find(self.key)
         return jira_sheet.cell(issue.row,SUMMARY_DROPDOWN_COL).value
     
     def jira_issue_get_worklog_link(self):
         WORKLOG_LINK_COL = 3 # "C" Col
-        jira_sheet = self.worksheet.worksheet(self.jira_issue_sheetname)
+        jira_sheet = self.worksheet.worksheet(self.JIRA_ISSUE_SHEETNAME)
         issue = jira_sheet.find(self.key)
         return jira_sheet.cell(issue.row,WORKLOG_LINK_COL).value
 
@@ -106,8 +131,8 @@ class SheetsUtil:
         values = {
             COL["summary"]: self.jira_issue_get_summary(),
             COL["comment"]: self.description,
-            COL["hour"]: re.search(REGEX.HOUR_JIRA.value, self.time).group(0).replace("h", ""),
-            COL["minute"]: re.search(REGEX.MINUTE_JIRA.value, self.time).group(0).replace("m", ""),
+            COL["hour"]: self.get_hourOrMinute_value(REGEX.HOUR_JIRA.value,"h"),
+            COL["minute"]: self.get_hourOrMinute_value(REGEX.MINUTE_JIRA.value,"m"),
             COL["remark"]: "Success",
             COL["option"]: "Add",
             COL["worklog_link"]: self.jira_issue_get_worklog_link(),
@@ -122,7 +147,11 @@ class SheetsUtil:
         ])
         print(f"debug: Successfully insert worklog at Row : {row}")
 
-
+    def get_hourOrMinute_value(self,regex,replace):
+        try:
+            return re.search(regex, self.time).group(0).replace(replace, "")
+        except Exception:
+            return ""
         
 
     def worklog_sheet_new_row(self,
@@ -149,8 +178,8 @@ class SheetsUtil:
             worksheet = self.worksheet.worksheet(worklog_sheetname)
         except gspread.exceptions.WorksheetNotFound:
             #TODO: Dialog asking for Dupe? or Unnessary
-            print("not Found")
-            template_sheet = self.worksheet.worksheet(self.template_sheetname)
+            print("debug: sheet not Found")
+            template_sheet = self.worksheet.worksheet(self.TEMPLATE_SHEETNAME)
             self.worksheet.duplicate_sheet(
             source_sheet_id=template_sheet.id,
             new_sheet_name=worklog_sheetname)
@@ -158,7 +187,7 @@ class SheetsUtil:
             worksheet =  self.worksheet.worksheet(worklog_sheetname)
             worksheet.update_acell("Q3",f"{self.dt.month:02d}")
             worksheet.update_acell("Q4",self.dt.year)
-            print("Successfully Dupe")
+            print("debug: Successfully Duplicate sheet")
         return worksheet
     
     def worklog_get_sheetname(self) -> str:
