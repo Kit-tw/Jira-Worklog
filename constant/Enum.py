@@ -1,6 +1,8 @@
 from enum import Enum
 import os 
 # TODO : CREATE bash file for running os.path.join(os.environ["USERPROFILE"], "Documents" locate where file store and Markdown file for document
+# TODO : add ICON tips and hover show storage location -> os.path.join(os.environ["USERPROFILE"], "Documents"
+# create hover and show tip to https://stackoverflow.com/questions/20399243/display-message-when-hovering-over-something-with-mouse-cursor-in-python
 class URL(Enum):
     def JIRA_POST_INSERT_WORKLOG_PATH(key :str) -> str :
         return f"/rest/api/3/issue/{key}/worklog"
