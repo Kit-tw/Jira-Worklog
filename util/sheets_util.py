@@ -14,7 +14,7 @@ class SheetsUtil:
         self.template_sheetname = "Template"
         self.jira_issue_sheetname = "jira-issue"
         self.key = "WFW-100"
-        self.date = "13/01/2026"
+        self.date = "14/01/2026"
         self.time = "1h 3m"
         self.desciprtion = "Testing"
         print("RunUtil")
@@ -22,8 +22,8 @@ class SheetsUtil:
         self.gc = self.authenticate()
         self.sheet_id = self.get_sheet_id()
         self.worksheet = self.gc.open_by_key(self.sheet_id)
-        self.add_jira_issue()
-        self.add_worklog()
+        self.jira_issue_add()
+        self.worklog_add()
 
     def authenticate(self):
         credentials_path = f"{STORAGE.STORAGE_PATH.value}/{STORAGE.GOOGLE_API_CREDENTIALS_FILE.value}"
@@ -48,21 +48,95 @@ class SheetsUtil:
         common_util.save_file(STORAGE.STORAGE_PATH.value,STORAGE.INFORMATION_FILE.value,data)
         return new_spreadsheet.id
 
-    def add_jira_issue(self):
+    def jira_issue_add(self):
         jira_sheet =  self.worksheet.worksheet(self.jira_issue_sheetname)
         lastrow = int(jira_sheet.acell('V2').value) + 1
         jira_sheet.update_cell(lastrow,1,self.key)
 
-    def add_worklog(self):
-        worklog_sheet = self.get_worklog_sheet()
+    def jira_issue_get_summary(self):
+        SUMMARY_DROPDOWN_COL = 5 # "E" Col
+        jira_sheet = self.worksheet.worksheet(self.jira_issue_sheetname)
+        issue = jira_sheet.find(self.key)
+        return jira_sheet.cell(issue.row,SUMMARY_DROPDOWN_COL).value
+    
+    def jira_issue_get_worklog_link(self):
+        WORKLOG_LINK_COL = 3 # "C" Col
+        jira_sheet = self.worksheet.worksheet(self.jira_issue_sheetname)
+        issue = jira_sheet.find(self.key)
+        return jira_sheet.cell(issue.row,WORKLOG_LINK_COL).value
+
+    def worklog_add(self):
+        worklog_sheet = self.worklog_get_sheet()
         date_cell_pattern = f"{self.dt.year}-{self.dt.month:02d}-{self.dt.day:02d}"
         print(date_cell_pattern)
         find_cell =  worklog_sheet.findall(date_cell_pattern)
-        print(find_cell)
+        empty_comment_row = None
+
+        for cell in find_cell:
+            comment_cell = worklog_sheet.cell(cell.row,4)
+            print(f"Loop {comment_cell.address} : {comment_cell.value}")
+            if(comment_cell.value is None):
+                empty_comment_row = comment_cell.row
+                break
+
+        if(empty_comment_row is None):
+            print("Can't Find")
+            src_row = find_cell[-1].row
+            dest_row = find_cell[-1].row + 1
+            empty_comment_row = dest_row
+            print(f"src_row : {src_row} dest_row = {dest_row}")
+            self.worklog_sheet_new_row(worklog_sheet,src_row,dest_row)
+
+        print(f"Empty : {empty_comment_row}")
+        self.worklog_insert_cell(worklog_sheet,empty_comment_row)
+
+    def worklog_insert_cell(self,
+                            worksheet : gspread.Worksheet,
+                            row : str):
+        SUMMARY_DROPDOWN_COL = 4 #"D" col
+        COMMENT_COL = 5 #"E" col
+        HOUR_COL = 6 #"F" col
+        MINUTE_COL = 7 #"G" col
+        REMARK_COL = 11 #"K" col
+        OPTION_COL = 12 #"L" col
+        WORKLOG_LINK_COL = 13 #"M" col
+        summary_value = self.jira_issue_get_summary()
+        description_value = self.desciprtion
+        hour_value = 1
+        minute_value = 0
+        remark_value = "Success"
+        option_value = "Add"
+        worklog_link_value = self.jira_issue_get_worklog_link()
+        worksheet.update_cell(row,SUMMARY_DROPDOWN_COL,summary_value)
+        worksheet.update_cell(row,COMMENT_COL,description_value)
+        worksheet.update_cell(row,HOUR_COL,hour_value)
+        worksheet.update_cell(row,MINUTE_COL,minute_value)
+        worksheet.update_cell(row,REMARK_COL,remark_value)
+        worksheet.update_cell(row,OPTION_COL,option_value)
+        worksheet.update_cell(row,WORKLOG_LINK_COL,worklog_link_value)
+
+
         
 
-    def get_worklog_sheet(self) -> gspread.Worksheet:
-        worklog_sheetname = self.get_worklog_sheetname()
+    def worklog_sheet_new_row(self,
+                              worksheet : gspread.Worksheet,
+                              src_row : str,
+                              dest_row : str):
+            TEMPLATE_RANGE = "A:N"
+            CLEAR_COLUMNS = ["D:G", "K", "M"]
+            # Copy format
+            worksheet.copy_range(
+                source=f"{TEMPLATE_RANGE}{src_row}",
+                dest=f"{TEMPLATE_RANGE}{dest_row}",
+                )
+            # Clear user-input columns
+            worksheet.batch_clear([
+                f"{col}{dest_row}" for col in CLEAR_COLUMNS
+            ])
+
+
+    def worklog_get_sheet(self) -> gspread.Worksheet:
+        worklog_sheetname = self.worklog_get_sheetname()
         try:
             worksheet = self.worksheet.worksheet(worklog_sheetname)
         except gspread.exceptions.WorksheetNotFound:
@@ -79,7 +153,7 @@ class SheetsUtil:
             print("Successfully Dupe")
         return worksheet
     
-    def get_worklog_sheetname(self) -> str:
+    def worklog_get_sheetname(self) -> str:
         return f"{self.dt.year}/{self.dt.month:02d}"
 
 
