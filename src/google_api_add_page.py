@@ -8,10 +8,11 @@ from customtkinter import filedialog
 
 #TODO : Should Have 2 step 1. Oauth 2. User copy speadSheet then paste the open share then paste ID or URL to this app
 class GoogleApiPage(ctk.CTkToplevel):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self,parent):
+        super().__init__(parent)
         self.geometry("1000x500")
         self.title("API GOOGLE")
+        self.transient(parent)
         self.resizable(width=False,height=False)
         self.input_frame()
     

@@ -12,7 +12,7 @@ class JiraUtil:
         self.mail = self.jira_data["jira_email"]
         self.api_token  = self.jira_data["jira_api"]
         self.prefix_url = self.jira_data["jira_prefix"]
-        self.gui = GuiUtil()
+        self.gui = GuiUtil(self)
         self.full_url = self.get_jira_site()
 
     #TODO : validate if user pass input as URL | key

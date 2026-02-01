@@ -14,7 +14,7 @@ class ApiPage(ctk.CTkFrame):
                       parent : any
                       ):
                super().__init__(parent)
-               self.gui_util = GuiUtil()
+               self.gui_util = GuiUtil(self)
                self.show_title()
                self.body()
                self.submit_button()
@@ -43,7 +43,7 @@ class ApiPage(ctk.CTkFrame):
                 for idx, text in enumerate(steps):
                         if(idx == 0):
                                 label = ctk.CTkLabel(step_frame,text=text,font=common_util.font(TEXTSIZE.TEXT_SM.value),cursor="hand2")
-                                label.bind("<Button-1>",lambda e:common_util.opon_url(URL.JIRA_GET_API_URL.value))
+                                label.bind("<Button-1>",lambda e:common_util.open_url(URL.JIRA_GET_API_URL.value))
                                 label.grid(row=idx,column=0,sticky='w')
                         else:
                                 label = ctk.CTkLabel(step_frame,text=text, font=common_util.font(TEXTSIZE.TEXT_SM.value))

@@ -7,7 +7,7 @@ from datetime import datetime
 class GitUtil:
     def __init__(self):
         self.cur_dir = self.get_current_directory()
-        self.gui_util = GuiUtil()
+        self.gui_util = GuiUtil(self)
         self.jira_util = JiraUtil()
         
 

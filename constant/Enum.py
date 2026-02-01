@@ -1,5 +1,6 @@
 from enum import Enum
 import os 
+from pathlib import Path
 # TODO : CREATE bash file for running os.path.join(os.environ["USERPROFILE"], "Documents" locate where file store and Markdown file for document
 # TODO : add ICON tips and hover show storage location -> os.path.join(os.environ["USERPROFILE"], "Documents"
 # create hover and show tip to https://stackoverflow.com/questions/20399243/display-message-when-hovering-over-something-with-mouse-cursor-in-python
@@ -13,12 +14,18 @@ class URL(Enum):
 class STORAGE(Enum):
     def GET_DOCUMENT_PATH() -> str:
         return  os.path.join(os.environ["USERPROFILE"], "Documents") 
+    def GET_PROJECT_ROOT() -> Path:
+        return Path(__file__).parent.parent
     DIRECTORY_NAME = "Worklog"
+    IMAGE_DIRECTORY_NAME = "image"
     GOOGLE_API_CREDENTIALS_FILE = "credentials.json"
     GOOGLE_API_AUTHORIZED_USER_FILE = "authorized_user.json"
     TOKEN_FILE = "token.json"
     INFORMATION_FILE = "info.json"
+    GOOGLE_SHEET_IMAGE = "google_sheet_image.png"
+    TOOLTIP_IMAGE = "tooltip_image.png"
     STORAGE_PATH = f"{GET_DOCUMENT_PATH()}/{DIRECTORY_NAME}"
+    IMAGE_PATH = f"{GET_PROJECT_ROOT()}/{IMAGE_DIRECTORY_NAME}"
     #TODO : SHOULD YOU REFACTOR COMMON UTIL to use only path?
     TOKEN_PATH = f"{STORAGE_PATH}/{TOKEN_FILE}"
     GOOGLE_API_CREDENTIALS_PATH = f"{STORAGE_PATH}/{GOOGLE_API_CREDENTIALS_FILE}"

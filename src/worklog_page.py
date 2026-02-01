@@ -3,21 +3,23 @@ from util.jira_util import JiraUtil
 from util.git_util import GitUtil
 from util.gui_util import GuiUtil
 from util.sheets_util import SheetsUtil
+from src.tooltip_toplevel import ToolTip
 from src.google_api_add_page import GoogleApiPage
 import util.common_util as common_util
 from constant.Enum import (TEXTSIZE,WIDGET,REGEX,STORAGE)
 from ctkdateentry import CTkDateEntry, CTkStringVar
 import re
-
+from PIL import Image
 #TODO : ADD BUTTON FOR DELETE STORAGE FILE
 #TODO : NEW UI / grid configrue
 class WorkLog(ctk.CTkFrame):
-    ROW_INPUT = 0
-    ROW_ISSUE = 1
-    ROW_TIME = 2
-    ROW_DATE = 3
-    ROW_OPTIONS = 4
-    ROW_FOOTER = 5
+    ROW_TOOLTIP = 0
+    ROW_INPUT = 1
+    ROW_ISSUE = 2
+    ROW_TIME = 3
+    ROW_DATE = 4
+    ROW_OPTIONS = 5
+    ROW_FOOTER = 6
     MAX_COL_SPAN=3
     
 
@@ -25,21 +27,31 @@ class WorkLog(ctk.CTkFrame):
                   parent : any):
         super().__init__(parent)
         self.jira_util = JiraUtil()
-        self.gui_util = GuiUtil()
+        self.gui_util = GuiUtil(self)
         self.api_authorized = common_util.find(STORAGE.STORAGE_PATH.value,STORAGE.GOOGLE_API_AUTHORIZED_USER_FILE.value)
         self.api_credentials =  common_util.find(STORAGE.STORAGE_PATH.value,STORAGE.GOOGLE_API_CREDENTIALS_FILE.value)
         self.toplevel_google_api = None
+        self.tooltip_toplevel = None
         self.issue_name=""
         self.date_entry = CTkStringVar(self, value= "Date")
+        self.tooltip_frame()
         self.input_frame()
         self.body()
         # self.hide_body_widgets()
         self.grid_columnconfigure(0 , weight=1)
         self.grid_columnconfigure((1,2,3) , weight=2)
 
+    def tooltip_frame(self):
+        img_path = common_util.find(STORAGE.IMAGE_PATH.value,STORAGE.TOOLTIP_IMAGE.value)
+        img = ctk.CTkImage(light_image=Image.open(img_path),dark_image=Image.open(img_path),size=(50, 50))
+        label = ctk.CTkLabel(self, image=img, text="")
+        label.image = img
+        label.bind("<Button-1>", lambda e: self.open_tooltip_toplevel())
+        label.grid(row=self.ROW_TOOLTIP,column=self.MAX_COL_SPAN,columnspan=3, sticky="e")
+
     def input_frame(self):
         self.jira_url_entry = ctk.CTkEntry(self,placeholder_text="Jira Issue URL or Key", width=WIDGET.WIDTH.value, height=WIDGET.HEIGHT.value)
-        self.jira_url_entry.grid(row=self.ROW_INPUT,column=0, sticky='ew',padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value, columnspan=3)
+        self.jira_url_entry.grid(row=self.ROW_INPUT,column=0, sticky='ew',padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value, columnspan=self.MAX_COL_SPAN)
         fetch_btn = ctk.CTkButton(self,text="fetch",command=lambda : self.fetch_command(self.jira_url_entry.get()), height=WIDGET.HEIGHT.value)
         fetch_btn.grid(row=self.ROW_INPUT,column=3, sticky='ew',padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
 
@@ -156,12 +168,12 @@ class WorkLog(ctk.CTkFrame):
         if(checkbox_value and self.toplevel_google_api is None and (not self.api_credentials)):
             dialog_msg = self.gui_util.show_dialog("Warning","warning","google API in storage not found", option_1="Add", option_2="Exit")
             if(dialog_msg.get() == "Add"):
-                self.open_toplevel()
+                self.open_googleapi_toplevel()
             else:
                 self.insert_sheet.deselect()
                 
             
-    def open_toplevel(self):
+    def open_googleapi_toplevel(self):
         if self.toplevel_google_api is None or not self.toplevel_google_api.winfo_exists():
             self.toplevel_google_api = GoogleApiPage(self) 
         else:
@@ -179,6 +191,11 @@ class WorkLog(ctk.CTkFrame):
         print(git_util.get_issueName())
         print(git_util.get_git_detail())
 
+    def open_tooltip_toplevel(self):
+        if self.tooltip_toplevel is None or not self.tooltip_toplevel.winfo_exists():
+            self.tooltip_toplevel = ToolTip(self) 
+        else:
+            self.tooltip_toplevel.focus() 
 
 
 
