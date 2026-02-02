@@ -22,7 +22,8 @@ class WorkLog(ctk.CTkFrame):
     ROW_FOOTER = 6
     MAX_COL_SPAN=3
     
-
+#TODO: Should use save jira Link if fetch issue success? then display as dropdown for next time use
+#TODO : ADD WORKLOG HISTORY PAGE BELOW SUBMIT BUTTON
     def __init__(self,
                   parent : any):
         super().__init__(parent)
