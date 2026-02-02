@@ -13,7 +13,7 @@ class JiraUtil:
         self.api_token  = self.jira_data["jira_api"]
         self.prefix_url = self.jira_data["jira_prefix"]
         self.gui = GuiUtil(self)
-        self.full_url = self.get_jira_site()
+        self.full_url = self.get_jira_site(self.prefix_url)
 
     #TODO : validate if user pass input as URL | key
     def fetch_issue(self,key):
@@ -28,7 +28,6 @@ class JiraUtil:
             print("response GET issue error : " + response.text)
             return
         return json.loads(response.text)["fields"]["summary"]
-        
         
 
     def get_jira_issue(self,
@@ -74,6 +73,6 @@ class JiraUtil:
         })
         return requests.request("POST",url,data=payload,headers=headers,auth=auth)
     
-    def get_jira_site(self) -> str:
-        return "https://" + self.prefix_url + ".atlassian.net"
+    def get_jira_site(self,prefix) -> str:
+        return "https://" + prefix + ".atlassian.net"
     

@@ -5,7 +5,8 @@ import json
 import shutil
 from util.gui_util import GuiUtil
 from datetime import datetime , timezone
-
+import requests
+from requests.auth import HTTPBasicAuth
 def find(path : str, name: str):
     for root, dirs, files in os.walk(path):
         if name in files:
@@ -68,3 +69,12 @@ def copy_file(src : str, dest : str):
         GuiUtil().show_dialog("Error","cancel","Source file not found.", options="OK")
     except Exception as e:
         GuiUtil().show_dialog("Error","cancel",f"An error occurred: {e}", options="OK")
+
+
+def get_user(email,api,prefix):
+    url = f"https://{prefix}.atlassian.net/rest/api/3/myself"
+    auth = HTTPBasicAuth(email, api)
+    headers = {
+    "Accept": "application/json"
+    }
+    return requests.request("GET",url,headers=headers,auth=auth)

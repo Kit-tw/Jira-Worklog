@@ -14,14 +14,30 @@ class App(ctk.CTk):
         self.title("Worklog")
         self.resizable(width=False,height=False)
         self.geometry("1000x500")
+        ctk.set_appearance_mode("dark")
 
+        self.current_page = None
+        self.show_initial_page()
 
-        if common_util.find(STORAGE.STORAGE_PATH.value,STORAGE.TOKEN_FILE.value):
-            worklog_page = WorkLog(self)
-            worklog_page.pack(fill="both",expand=True)
+    def show_initial_page(self):
+        if common_util.find(STORAGE.STORAGE_PATH.value, STORAGE.TOKEN_FILE.value):
+            self.show_worklog_page()
         else:
-            api_page = ApiPage(self)
-            api_page.pack(fill="both",expand=True)
+            self.show_api_page()
+
+    def clear_page(self):
+        if self.current_page:
+            self.current_page.destroy()
+
+    def show_api_page(self):
+        self.clear_page()
+        self.current_page = ApiPage(self)
+        self.current_page.pack(fill="both", expand=True)
+
+    def show_worklog_page(self):
+        self.clear_page()
+        self.current_page = WorkLog(self)
+        self.current_page.pack(fill="both", expand=True)
 
 app = App()
 app.mainloop()

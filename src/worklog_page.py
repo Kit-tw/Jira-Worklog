@@ -41,6 +41,7 @@ class WorkLog(ctk.CTkFrame):
         # self.hide_body_widgets()
         self.grid_columnconfigure(0 , weight=1)
         self.grid_columnconfigure((1,2,3) , weight=2)
+        
 
     def tooltip_frame(self):
         img_path = common_util.find(STORAGE.IMAGE_PATH.value,STORAGE.TOOLTIP_IMAGE.value)

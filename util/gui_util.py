@@ -3,7 +3,7 @@ import customtkinter as ctk
 # def hyperlink(root,text,url):
 
 class GuiUtil:
-    def __init__(self,parent):
+    def __init__(self,parent=None):
          self.parent = parent
 
     def show_dialog(self, title, icon, text, **options):
