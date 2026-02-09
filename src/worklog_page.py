@@ -61,7 +61,10 @@ class WorkLog(ctk.CTkFrame):
         self.issue_name = ""
         self.issue_name =  self.jira_util.fetch_issue(key)
         if self.issue_name:
-            self.issue_label.configure(text="Issue Name : " + self.issue_name)
+            #TODO : Use util of hyperlink
+            self.issue_label.configure(text="Issue Name : " + self.issue_name,cursor="hand2")
+            url = self.jira_util.full_url + "/browse/" + key
+            self.issue_label.bind("<Button-1>", lambda e : common_util.open_url(url))
             self.show_body_widgets()
 
     #TODO : Should use scroll bar for adding multiple log then move last grid section to footer

@@ -3,7 +3,7 @@ import os
 from git import Repo
 from util.gui_util import GuiUtil
 from util.jira_util import JiraUtil
-from datetime import datetime
+from datetime import datetime, timedelta
 class GitUtil:
     def __init__(self):
         self.cur_dir = self.get_current_directory()
@@ -24,14 +24,26 @@ class GitUtil:
     def get_issue_key(self) -> str:
         return self.jira_util.fetch_issue(self.get_issueName())
 
-    # TODO : implement return step to extract 5 lastest commit worklog
-    # TODO : add check for maximum hour checkbox from worklog_page
     def get_git_detail(self):
         cur_log = Repo(self.cur_dir).active_branch.log()
         create_branch_date = datetime.fromtimestamp(cur_log[0].time[0])
         print(create_branch_date)
+        message = []
+        date_time = []
         for entry in cur_log:
-            message = entry.message
-            date_time = datetime.fromtimestamp(entry.time[0])
-            print(f"{message}   {date_time}" )
-        return
+            message.append(entry.message)
+            date_time.append(datetime.fromtimestamp(entry.time[0]))
+            print(f"{entry.message}   {(datetime.fromtimestamp(entry.time[0]))}" )
+        print(f"get first {message[0]} date : {date_time[0]}")
+        print(f"get last {message[-1]} date : {date_time[-1]}")
+        time : timedelta = date_time[-1] - date_time[0]
+        time_in_s = time.total_seconds()
+        hours = divmod(time_in_s, 3600)[0]
+        #TODO : Clear messy code
+        working_hours = 8 if hours > 8 else hours
+        obj = {
+            "date" : f"{date_time[-1].day}/{date_time[-1].month}/{date_time[-1].year}",
+            "time_spend" : f"{int(working_hours)}h" ,
+            "description" : message[-1]
+        }
+        return obj
