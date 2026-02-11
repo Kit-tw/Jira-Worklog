@@ -66,6 +66,8 @@ class WorkLog(ctk.CTkFrame):
             url = self.jira_util.full_url + "/browse/" + key
             self.issue_label.bind("<Button-1>", lambda e : common_util.open_url(url))
             self.show_body_widgets()
+            return True
+        return False
 
     #TODO : Should use scroll bar for adding multiple log then move last grid section to footer
     #TODO : IF you add scroll bar you have to add delete button for if section > 1
@@ -94,10 +96,9 @@ class WorkLog(ctk.CTkFrame):
         self.automate_label.grid(row=self.ROW_OPTIONS, column=0, padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
         #TODO : IF select Git can choose maximum hour for automate insert and if select git the max range where section can have is 5
         #TODO : Jira can check from history status
-        self.automate_options = ctk.CTkComboBox(self, values=["Manual","Git","Jira"], command=self.combobox_callback)
+        self.automate_options = ctk.CTkComboBox(self, values=["Manual","Git"], command=self.combobox_callback)
         self.automate_options.grid(row=self.ROW_OPTIONS, column=1, padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
 
-        #TODO: ADD when having sheet ID add label link to that spread sheet link
         self.insert_sheet = ctk.CTkCheckBox(self, text="Insert to google sheets", font=common_util.font(TEXTSIZE.TEXT_X_SM.value), command=self.checkbox_callback)
         self.insert_sheet.grid(row=self.ROW_OPTIONS, column=2, padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
 
@@ -142,18 +143,17 @@ class WorkLog(ctk.CTkFrame):
         issue_key = self.jira_url_entry.get()
         is_insert_sheet = self.insert_sheet.get()
 
-        # if(not issue_key):
-        #     self.gui_util.show_dialog("Error", "cancel", "Issue Key is not found", options="OK")
-        #     return
-        # if(not time_spend or not re.match(REGEX.DATE.value,date)):
-        #     self.gui_util.show_dialog("Error", "cancel", "Date and Time field required", options="OK")
-        #     return
+        if(not issue_key):
+            self.gui_util.show_dialog("Error", "cancel", "Issue Key is not found", options="OK")
+            return
+        if(not time_spend or not re.match(REGEX.DATE.value,date)):
+            self.gui_util.show_dialog("Error", "cancel", "Date and Time field required", options="OK")
+            return
         #TODO : IF TOP LEVEL IS Aleady OPEN then check the path in this too
-        # date_time = common_util.date_str_to_iso(date)
+        date_time = common_util.date_str_to_iso(date)
         # TODO : handle response if success provide JIRA URL if checkbox is check provide link to google sheets
         # TODO : IF DIALOG "OK" is click clear all input field
-        # response = self.jira_util.post_insert_worklog(issue_key,time_spend,date_time,description)
-        # print(response.text)
+        response = self.jira_util.post_insert_worklog(issue_key,time_spend,date_time,description)
         if(is_insert_sheet):
             self.insert_to_sheet(issue_key,date,time_spend,description)
 
@@ -187,14 +187,17 @@ class WorkLog(ctk.CTkFrame):
     def combobox_callback(self,choice):
         if(choice == "Git"):
             return self.git_insert_entry()
-        if (choice == "Jira"):
-            return
         return
     
     def git_insert_entry(self):
         git_util = GitUtil()
-        print(git_util.get_issueName())
-        print(git_util.get_git_detail())
+        if(self.fetch_command(git_util.get_issueName())):
+           obj = git_util.get_git_detail()
+           self.date_entry.set(obj["date"])
+        #TODO : FIX BUG if delete text placeHolder gone , implement or remove placeholder use frame to display description for each input instead      
+           self.time_spend_entry.configure(textvariable=ctk.StringVar(self, value=obj["time_spend"]),placeholder_text_color="white")
+           self.description_entry.configure(textvariable=ctk.StringVar(self, value=obj["description"]),placeholder_text_color="white")
+        
 
     def open_tooltip_toplevel(self):
         if self.tooltip_toplevel is None or not self.tooltip_toplevel.winfo_exists():

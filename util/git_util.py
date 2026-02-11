@@ -33,10 +33,7 @@ class GitUtil:
         for entry in cur_log:
             message.append(entry.message)
             date_time.append(datetime.fromtimestamp(entry.time[0]))
-            print(f"{entry.message}   {(datetime.fromtimestamp(entry.time[0]))}" )
-        print(f"get first {message[0]} date : {date_time[0]}")
-        print(f"get last {message[-1]} date : {date_time[-1]}")
-        time : timedelta = date_time[-1] - date_time[0]
+        time : timedelta = date_time[-1] - date_time[-2]
         time_in_s = time.total_seconds()
         hours = divmod(time_in_s, 3600)[0]
         #TODO : Clear messy code
