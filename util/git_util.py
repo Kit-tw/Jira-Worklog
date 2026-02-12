@@ -33,13 +33,16 @@ class GitUtil:
         for entry in cur_log:
             message.append(entry.message)
             date_time.append(datetime.fromtimestamp(entry.time[0]))
-        time : timedelta = date_time[-1] - date_time[-2]
+            print(entry.message, " -> ", datetime.fromtimestamp(entry.time[0]))
+        before_date = date_time[-1]
+        current_date = date_time[-2]
+        time : timedelta = before_date - current_date
         time_in_s = time.total_seconds()
         hours = divmod(time_in_s, 3600)[0]
         #TODO : Clear messy code
         working_hours = 8 if hours > 8 else hours
         obj = {
-            "date" : f"{date_time[-1].day}/{date_time[-1].month}/{date_time[-1].year}",
+            "date" : f"{before_date.day:02d}/{before_date.month:02d}/{before_date.year}",
             "time_spend" : f"{int(working_hours)}h" ,
             "description" : message[-1]
         }

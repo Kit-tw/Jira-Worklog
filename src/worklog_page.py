@@ -21,6 +21,9 @@ class WorkLog(ctk.CTkFrame):
     ROW_OPTIONS = 5
     ROW_FOOTER = 6
     MAX_COL_SPAN=3
+    PLACEHOLDER_URL = "Jira Issue URL or Key"
+    PLACEHOLDER_TIME = "Time spend e.g. 3h, 20m, 16s"
+    PLACEHOLDER_DESCRIPTION = "Description"
     
 #TODO: Should use save jira Link if fetch issue success? then display as dropdown for next time use
 #TODO : ADD WORKLOG HISTORY PAGE BELOW SUBMIT BUTTON
@@ -34,7 +37,10 @@ class WorkLog(ctk.CTkFrame):
         self.toplevel_google_api = None
         self.tooltip_toplevel = None
         self.issue_name=""
-        self.date_entry = CTkStringVar(self, value= "Date")
+        self.key_var = CTkStringVar(self, value= self.PLACEHOLDER_URL)
+        self.date_var = CTkStringVar(self, value= "Date")
+        self.time_var = CTkStringVar(self, value=self.PLACEHOLDER_TIME)
+        self.description_var = CTkStringVar(self, value=self.PLACEHOLDER_DESCRIPTION)
         self.tooltip_frame()
         self.input_frame()
         self.body()
@@ -52,7 +58,7 @@ class WorkLog(ctk.CTkFrame):
         label.grid(row=self.ROW_TOOLTIP,column=self.MAX_COL_SPAN,columnspan=3, sticky="e")
 
     def input_frame(self):
-        self.jira_url_entry = ctk.CTkEntry(self,placeholder_text="Jira Issue URL or Key", width=WIDGET.WIDTH.value, height=WIDGET.HEIGHT.value)
+        self.jira_url_entry = ctk.CTkEntry(self, textvariable=self.key_var, width=WIDGET.WIDTH.value, height=WIDGET.HEIGHT.value)
         self.jira_url_entry.grid(row=self.ROW_INPUT,column=0, sticky='ew',padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value, columnspan=self.MAX_COL_SPAN)
         fetch_btn = ctk.CTkButton(self,text="fetch",command=lambda : self.fetch_command(self.jira_url_entry.get()), height=WIDGET.HEIGHT.value)
         fetch_btn.grid(row=self.ROW_INPUT,column=3, sticky='ew',padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
@@ -78,10 +84,10 @@ class WorkLog(ctk.CTkFrame):
         self.time_label = ctk.CTkLabel(self, text="Date & Time", font=common_util.font(TEXTSIZE.TEXT_SM.value))
         self.time_label.grid(row=self.ROW_TIME, column=0, padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
 
-        self.start_date_entry = CTkDateEntry(self, variable=self.date_entry, height=WIDGET.HEIGHT.value)
+        self.start_date_entry = CTkDateEntry(self, variable=self.date_var, height=WIDGET.HEIGHT.value)
         self.start_date_entry.grid(row=self.ROW_TIME, column=1, sticky='ew', padx=WIDGET.PAD_X.value)
 
-        self.time_spend_entry = ctk.CTkEntry(self, placeholder_text="Time spend e.g. 3h, 20m, 16s", height=WIDGET.HEIGHT.value)
+        self.time_spend_entry = ctk.CTkEntry(self, textvariable=self.time_var, height=WIDGET.HEIGHT.value)
         self.time_spend_entry.grid(row=self.ROW_TIME, column=2, sticky='ew', padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value,  columnspan=self.MAX_COL_SPAN)
 
 
@@ -89,7 +95,7 @@ class WorkLog(ctk.CTkFrame):
         self.start_label.grid(row=self.ROW_DATE, column=0, padx=WIDGET.PAD_X.value)
 
 
-        self.description_entry = ctk.CTkEntry(self,placeholder_text="Description", height=WIDGET.HEIGHT.value)
+        self.description_entry = ctk.CTkEntry(self, textvariable=self.description_var, height=WIDGET.HEIGHT.value)
         self.description_entry.grid(row=self.ROW_DATE, column=1, sticky='ew', padx=WIDGET.PAD_X.value, columnspan=self.MAX_COL_SPAN)
 
         self.automate_label = ctk.CTkLabel(self, text="Automate Worklog", font=common_util.font(TEXTSIZE.TEXT_SM.value))
@@ -138,7 +144,7 @@ class WorkLog(ctk.CTkFrame):
 
     def insert_worklog(self) -> None:
         time_spend = self.time_spend_entry.get()
-        date = self.date_entry.get()
+        date = self.date_var.get()
         description = self.description_entry.get()
         issue_key = self.jira_url_entry.get()
         is_insert_sheet = self.insert_sheet.get()
@@ -153,9 +159,11 @@ class WorkLog(ctk.CTkFrame):
         date_time = common_util.date_str_to_iso(date)
         # TODO : handle response if success provide JIRA URL if checkbox is check provide link to google sheets
         # TODO : IF DIALOG "OK" is click clear all input field
+        print(is_insert_sheet)
         response = self.jira_util.post_insert_worklog(issue_key,time_spend,date_time,description)
         if(is_insert_sheet):
             self.insert_to_sheet(issue_key,date,time_spend,description)
+        print("Successfully inserted worklog")
 
     #TODO : SHOULD CHECK EXIST Sheets too
     def insert_to_sheet(self,
@@ -163,7 +171,7 @@ class WorkLog(ctk.CTkFrame):
                         date : str,
                         time_spend : str,
                         description : str):
-        if(not self.api_authorized or not self.api_credentials):
+        if(not self.api_credentials):
             #TODO : Throw to insert google API page 
             return
         SheetsUtil(key=issue_key,date=date,time=time_spend,description=description)
@@ -191,13 +199,14 @@ class WorkLog(ctk.CTkFrame):
     
     def git_insert_entry(self):
         git_util = GitUtil()
-        if(self.fetch_command(git_util.get_issueName())):
+        key = git_util.get_issueName()
+        if(key and self.fetch_command(key)):
+           #TODO : FIX BUG if delete text placeHolder gone , implement or remove placeholder use frame to display description for each input instead      
            obj = git_util.get_git_detail()
-           self.date_entry.set(obj["date"])
-        #TODO : FIX BUG if delete text placeHolder gone , implement or remove placeholder use frame to display description for each input instead      
-           self.time_spend_entry.configure(textvariable=ctk.StringVar(self, value=obj["time_spend"]),placeholder_text_color="white")
-           self.description_entry.configure(textvariable=ctk.StringVar(self, value=obj["description"]),placeholder_text_color="white")
-        
+           self.key_var.set(key)
+           self.date_var.set(obj["date"])
+           self.time_var.set(obj["time_spend"])
+           self.description_var.set(obj["description"])
 
     def open_tooltip_toplevel(self):
         if self.tooltip_toplevel is None or not self.tooltip_toplevel.winfo_exists():
