@@ -38,10 +38,10 @@ class WorkLog(ctk.CTkFrame):
         self.toplevel_google_api = None
         self.tooltip_toplevel = None
         self.issue_name=""
-        self.key_var = CTkStringVar(self, value= self.PLACEHOLDER_URL)
-        self.date_var = CTkStringVar(self, value= "Date")
-        self.time_var = CTkStringVar(self, value=self.PLACEHOLDER_TIME)
-        self.description_var = CTkStringVar(self, value=self.PLACEHOLDER_DESCRIPTION)
+        self.key_var = ctk.StringVar(self, value= self.PLACEHOLDER_URL)
+        self.date_var = ctk.StringVar(self, value= "Date")
+        self.time_var = ctk.StringVar(self, value= self.PLACEHOLDER_TIME)
+        self.description_var = ctk.StringVar(self, value=self.PLACEHOLDER_DESCRIPTION)
         self.tooltip_frame()
         self.input_frame()
         self.body()
@@ -79,38 +79,38 @@ class WorkLog(ctk.CTkFrame):
     #TODO : Should use scroll bar for adding multiple log then move last grid section to footer
     #TODO : IF you add scroll bar you have to add delete button for if section > 1
     def body(self):
-        self.issue_label = ctk.CTkLabel(self, text="", font=common_util.font(TEXTSIZE.TEXT_MD.value), text_color="lightblue")
+        self.issue_label = ctk.CTkLabel(self, text="", font=self.gui_util.font(TEXTSIZE.TEXT_MD.value), text_color="lightblue")
         self.issue_label.grid(row=self.ROW_ISSUE, column=0, sticky='nsew',columnspan=self.MAX_COL_SPAN)
 
-        self.time_label = ctk.CTkLabel(self, text="Date & Time", font=common_util.font(TEXTSIZE.TEXT_SM.value))
+        self.time_label = ctk.CTkLabel(self, text="Date & Time", font=self.gui_util.font(TEXTSIZE.TEXT_SM.value))
         self.time_label.grid(row=self.ROW_TIME, column=0, padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
 
-        self.start_date_entry = CTkDateEntry(self, variable=self.date_var, height=WIDGET.HEIGHT.value)
-        self.start_date_entry.grid(row=self.ROW_TIME, column=1, sticky='ew', padx=WIDGET.PAD_X.value)
+        self.time_label = self.gui_util.create_normal_label(self,"Date & Time",TEXTSIZE.TEXT_SM,self.ROW_TIME,0,padx=WIDGET.PAD_X.value,pady=WIDGET.PAD_Y.value)
+
+        self.start_date_entry = CTkDateEntry(self, variable=self.date_var, height=WIDGET.HEIGHT.value).grid(row=self.ROW_TIME, column=1, sticky='ew', padx=WIDGET.PAD_X.value)
 
         self.time_spend_entry = ctk.CTkEntry(self, textvariable=self.time_var, height=WIDGET.HEIGHT.value)
         self.time_spend_entry.grid(row=self.ROW_TIME, column=2, sticky='ew', padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value,  columnspan=self.MAX_COL_SPAN)
 
-
-        self.start_label = ctk.CTkLabel(self, text="Description", font=common_util.font(TEXTSIZE.TEXT_SM.value))
+        self.start_label = ctk.CTkLabel(self, text="Description", font=self.gui_util.font(TEXTSIZE.TEXT_SM.value))
         self.start_label.grid(row=self.ROW_DATE, column=0, padx=WIDGET.PAD_X.value)
-
 
         self.description_entry = ctk.CTkEntry(self, textvariable=self.description_var, height=WIDGET.HEIGHT.value)
         self.description_entry.grid(row=self.ROW_DATE, column=1, sticky='ew', padx=WIDGET.PAD_X.value, columnspan=self.MAX_COL_SPAN)
 
-        self.automate_label = ctk.CTkLabel(self, text="Automate Worklog", font=common_util.font(TEXTSIZE.TEXT_SM.value))
+        self.automate_label = ctk.CTkLabel(self, text="Automate Worklog", font=self.gui_util.font(TEXTSIZE.TEXT_SM.value))
         self.automate_label.grid(row=self.ROW_OPTIONS, column=0, padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
         #TODO : IF select Git can choose maximum hour for automate insert and if select git the max range where section can have is 5
         #TODO : Jira can check from history status
         self.automate_options = ctk.CTkComboBox(self, values=["Manual","Git"], command=self.combobox_callback)
         self.automate_options.grid(row=self.ROW_OPTIONS, column=1, padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
 
-        self.insert_sheet = ctk.CTkCheckBox(self, text="Insert to google sheets", font=common_util.font(TEXTSIZE.TEXT_X_SM.value), command=self.checkbox_callback)
+        self.insert_sheet = ctk.CTkCheckBox(self, text="Insert to google sheets", font=self.gui_util.font(TEXTSIZE.TEXT_X_SM.value), command=self.checkbox_callback)
         self.insert_sheet.grid(row=self.ROW_OPTIONS, column=2, padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
 
         self.confirm_btn = ctk.CTkButton(self, text="Confirm & Log Work", height=WIDGET.HEIGHT.value, command=self.insert_worklog)
         self.confirm_btn.grid(row=self.ROW_FOOTER, column=0, columnspan=1, sticky='w', padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
+
 
 
     def hide_body_widgets(self):
@@ -208,6 +208,7 @@ class WorkLog(ctk.CTkFrame):
            self.date_var.set(obj["date"])
            self.time_var.set(obj["time_spend"])
            self.description_var.set(obj["description"])
+
 
     def open_tooltip_toplevel(self):
         if self.tooltip_toplevel is None or not self.tooltip_toplevel.winfo_exists():

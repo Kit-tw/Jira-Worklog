@@ -21,7 +21,7 @@ class ApiPage(ctk.CTkFrame):
                 
 
         def show_title(self) -> None :
-                title = ctk.CTkLabel(self,text="How to get API token",font=common_util.font(TEXTSIZE.TEXT_LG.value))
+                title = ctk.CTkLabel(self,text="How to get API token",font=self.gui_util(TEXTSIZE.TEXT_LG.value))
                 title.grid(row = 0, column = 0, padx = WIDGET.PAD_X.value, pady = WIDGET.PAD_Y.value)
 
         def body(self) -> None :
@@ -40,17 +40,17 @@ class ApiPage(ctk.CTkFrame):
                 ]
                 for idx, text in enumerate(steps):
                         if(idx == 0):
-                                label = ctk.CTkLabel(step_frame,text=text,font=common_util.font(TEXTSIZE.TEXT_SM.value),cursor="hand2",text_color="#75add8")
+                                label = ctk.CTkLabel(step_frame,text=text,font=self.gui_util.font(TEXTSIZE.TEXT_SM.value),cursor="hand2",text_color="#75add8")
                                 label.bind("<Button-1>",lambda e:common_util.open_url(URL.JIRA_GET_API_URL.value))
                                 label.grid(row=idx,column=0,sticky='w', padx = WIDGET.PAD_X.value, pady = 10)
                         else:
-                                label = ctk.CTkLabel(step_frame,text=text, font=common_util.font(TEXTSIZE.TEXT_SM.value))
+                                label = ctk.CTkLabel(step_frame,text=text, font=self.gui_util.font(TEXTSIZE.TEXT_SM.value))
                                 label.grid(row=idx,column=0,sticky='w', padx = WIDGET.PAD_X.value, pady = 10)
 
         def input_frame(self) -> None  :
                 input_frame = ctk.CTkFrame(self, fg_color="transparent")
                 input_frame.grid(row=1,column=1, padx = WIDGET.PAD_X.value, pady = WIDGET.PAD_Y.value)
-                input_title = ctk.CTkLabel(input_frame, text="Jira Issue URL or Key", font=common_util.font(TEXTSIZE.TEXT_MD.value))
+                input_title = ctk.CTkLabel(input_frame, text="Jira Issue URL or Key", font=self.gui_util.font(TEXTSIZE.TEXT_MD.value))
                 input_title.grid(row=0,column=0, pady = 5)
                 self.email_entry = ctk.CTkEntry(input_frame, placeholder_text="e.g. exmaple@gmail.com", width=300 , height= WIDGET.HEIGHT.value)
                 self.email_entry.grid(row=1,column=0, pady = 5)

@@ -24,8 +24,7 @@ def create_directory(path : str):
     except Exception as e:
         print(e)
         GuiUtil().show_dialog("Error", "cancel", f"Cannot create direcotry at {path}", options="OK")
-def font(size : int):
-    return customtkinter.CTkFont(family="Arial",size=size)
+
 
 
 def open_url(url):
