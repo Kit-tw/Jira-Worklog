@@ -27,6 +27,7 @@ class WorkLog(ctk.CTkFrame):
     
 #TODO: Should use save jira Link if fetch issue success? then display as dropdown for next time use
 #TODO : ADD WORKLOG HISTORY PAGE BELOW SUBMIT BUTTON
+#TODO : FIX UI WIDTH WHEN TEXT LONG / AUTO GIT
     def __init__(self,
                   parent : any):
         super().__init__(parent)
