@@ -7,6 +7,7 @@ from util.gui_util import GuiUtil
 from datetime import datetime , timezone
 import requests
 from requests.auth import HTTPBasicAuth
+from constant.Enum import (STORAGE)
 def find(path : str, name: str):
     for root, dirs, files in os.walk(path):
         if name in files:
@@ -77,3 +78,8 @@ def get_user(email,api,prefix):
     "Accept": "application/json"
     }
     return requests.request("GET",url,headers=headers,auth=auth)
+
+def get_worklog_history():
+    info = read_json_file(STORAGE.STORAGE_PATH.value,STORAGE.INFORMATION_FILE.value)
+    print(info)
+    print(info["history"])

@@ -10,7 +10,6 @@ from constant.Enum import (TEXTSIZE,WIDGET,REGEX,STORAGE)
 from ctkdateentry import CTkDateEntry, CTkStringVar
 import re
 from PIL import Image
-#TODO : ADD BUTTON FOR DELETE STORAGE FILE
 #TODO : NEW UI / grid configrue
 class WorkLog(ctk.CTkFrame):
     ROW_TOOLTIP = 0
@@ -42,7 +41,7 @@ class WorkLog(ctk.CTkFrame):
         self.date_var = ctk.StringVar(self, value= "Date")
         self.time_var = ctk.StringVar(self, value= self.PLACEHOLDER_TIME)
         self.description_var = ctk.StringVar(self, value=self.PLACEHOLDER_DESCRIPTION)
-        self.tooltip_frame()
+        self.header_frame()
         self.input_frame()
         self.body()
         # self.hide_body_widgets()
@@ -50,13 +49,17 @@ class WorkLog(ctk.CTkFrame):
         self.grid_columnconfigure((1,2,3) , weight=2)
         
 
-    def tooltip_frame(self):
+    def header_frame(self):
         img_path = common_util.find(STORAGE.IMAGE_PATH.value,STORAGE.TOOLTIP_IMAGE.value)
         img = ctk.CTkImage(light_image=Image.open(img_path),dark_image=Image.open(img_path),size=(50, 50))
         label = ctk.CTkLabel(self, image=img, text="")
         label.image = img
         label.bind("<Button-1>", lambda e: self.open_tooltip_toplevel())
-        label.grid(row=self.ROW_TOOLTIP,column=self.MAX_COL_SPAN,columnspan=3, sticky="e")
+        label.grid(row=self.ROW_TOOLTIP,column=self.MAX_COL_SPAN,columnspan=self.MAX_COL_SPAN, sticky="e")
+        print(common_util.get_worklog_history())
+        self.gui_util.create_normal_label(self,"Worklog History",TEXTSIZE.TEXT_SM,self.ROW_TOOLTIP,0,padx=WIDGET.PAD_X.value,pady=WIDGET.PAD_Y.value)
+        combobox = ctk.CTkComboBox(self, values=["option 1", "CAT-1695 สวัสดีคนไทย ผมมาจากดาวอังคาร"], width=500, height=WIDGET.HEIGHT.value)
+        combobox.grid(row=self.ROW_TOOLTIP,column=1,columnspan=2, sticky="n",padx=WIDGET.PAD_X.value,pady=WIDGET.PAD_Y.value)
 
     def input_frame(self):
         self.jira_url_entry = ctk.CTkEntry(self, textvariable=self.key_var, width=WIDGET.WIDTH.value, height=WIDGET.HEIGHT.value)
@@ -79,7 +82,7 @@ class WorkLog(ctk.CTkFrame):
     #TODO : Should use scroll bar for adding multiple log then move last grid section to footer
     #TODO : IF you add scroll bar you have to add delete button for if section > 1
     def body(self):
-        self.issue_label = ctk.CTkLabel(self, text="", font=self.gui_util.font(TEXTSIZE.TEXT_MD.value), text_color="lightblue")
+        self.issue_label = ctk.CTkLabel(self, text="", font=self.gui_util.font(TEXTSIZE.TEXT_X_SM.value), text_color="lightblue")
         self.issue_label.grid(row=self.ROW_ISSUE, column=0, sticky='nsew',columnspan=self.MAX_COL_SPAN)
 
         self.time_label = ctk.CTkLabel(self, text="Date & Time", font=self.gui_util.font(TEXTSIZE.TEXT_SM.value))
