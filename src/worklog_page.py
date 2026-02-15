@@ -61,9 +61,15 @@ class WorkLog(ctk.CTkFrame):
         if(len(self.worklog_history) > 0):
             history_dropdown = [item["summary"] for item in self.worklog_history]
             self.gui_util.create_normal_label(self,"Worklog History",TEXTSIZE.TEXT_SM,self.ROW_TOOLTIP,0,grid_args={"padx":WIDGET.PAD_X.value,"pady":WIDGET.PAD_Y.value})
-            combobox = ctk.CTkComboBox(self, values=history_dropdown, width=500, height=WIDGET.HEIGHT.value)
+            combobox = ctk.CTkComboBox(self, values=history_dropdown, width=500, height=WIDGET.HEIGHT.value, command=lambda e: self.open_worklog(combobox))
             combobox.grid(row=self.ROW_TOOLTIP,column=1,columnspan=2, sticky="n",padx=WIDGET.PAD_X.value,pady=WIDGET.PAD_Y.value)
-
+    #TODO: FIX LOOP EVERYTIME CALLED
+    def open_worklog(self,combobox : ctk.CTkComboBox):
+        print(combobox.get())
+        for item in self.worklog_history:
+            if(item["summary"] == combobox.get()):
+                combobox.bind("<Button-1>", lambda e : common_util.open_url(self.jira_util.full_url + "/browse/" + item["key"]))
+        
     def input_frame(self):
         self.jira_url_entry = ctk.CTkEntry(self, textvariable=self.key_var, width=WIDGET.WIDTH.value, height=WIDGET.HEIGHT.value)
         self.jira_url_entry.grid(row=self.ROW_INPUT,column=0, sticky='ew',padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value, columnspan=self.MAX_COL_SPAN)
