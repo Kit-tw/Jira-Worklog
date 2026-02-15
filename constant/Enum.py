@@ -19,6 +19,7 @@ class STORAGE(Enum):
     GOOGLE_API_AUTHORIZED_USER_FILE = "authorized_user.json"
     TOKEN_FILE = "token.json"
     INFORMATION_FILE = "info.json"
+    HISTORY_FILE = "history.json"
     GOOGLE_SHEET_IMAGE = "google_sheet_image.png"
     TOOLTIP_IMAGE = "tooltip_image.png"
     STORAGE_PATH = f"{GET_DOCUMENT_PATH()}/{DIRECTORY_NAME}"

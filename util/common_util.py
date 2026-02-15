@@ -80,6 +80,10 @@ def get_user(email,api,prefix):
     return requests.request("GET",url,headers=headers,auth=auth)
 
 def get_worklog_history():
-    info = read_json_file(STORAGE.STORAGE_PATH.value,STORAGE.INFORMATION_FILE.value)
-    print(info)
-    print(info["history"])
+    if(find(STORAGE.STORAGE_PATH.value,STORAGE.HISTORY_FILE.value)):
+        history = read_json_file(STORAGE.STORAGE_PATH.value,STORAGE.HISTORY_FILE.value)
+        try:
+            return history
+        except Exception:
+            return []
+    return []

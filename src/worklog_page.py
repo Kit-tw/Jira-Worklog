@@ -27,6 +27,7 @@ class WorkLog(ctk.CTkFrame):
 #TODO: Should use save jira Link if fetch issue success? then display as dropdown for next time use
 #TODO : ADD WORKLOG HISTORY PAGE BELOW SUBMIT BUTTON
 #TODO : FIX UI WIDTH WHEN TEXT LONG / AUTO GIT
+#TODO : StringVar when equal PlaceHolder when user focus remove text
     def __init__(self,
                   parent : any):
         super().__init__(parent)
@@ -41,6 +42,7 @@ class WorkLog(ctk.CTkFrame):
         self.date_var = ctk.StringVar(self, value= "Date")
         self.time_var = ctk.StringVar(self, value= self.PLACEHOLDER_TIME)
         self.description_var = ctk.StringVar(self, value=self.PLACEHOLDER_DESCRIPTION)
+        self.worklog_history = common_util.get_worklog_history()
         self.header_frame()
         self.input_frame()
         self.body()
@@ -56,10 +58,11 @@ class WorkLog(ctk.CTkFrame):
         label.image = img
         label.bind("<Button-1>", lambda e: self.open_tooltip_toplevel())
         label.grid(row=self.ROW_TOOLTIP,column=self.MAX_COL_SPAN,columnspan=self.MAX_COL_SPAN, sticky="e")
-        print(common_util.get_worklog_history())
-        self.gui_util.create_normal_label(self,"Worklog History",TEXTSIZE.TEXT_SM,self.ROW_TOOLTIP,0,padx=WIDGET.PAD_X.value,pady=WIDGET.PAD_Y.value)
-        combobox = ctk.CTkComboBox(self, values=["option 1", "CAT-1695 สวัสดีคนไทย ผมมาจากดาวอังคาร"], width=500, height=WIDGET.HEIGHT.value)
-        combobox.grid(row=self.ROW_TOOLTIP,column=1,columnspan=2, sticky="n",padx=WIDGET.PAD_X.value,pady=WIDGET.PAD_Y.value)
+        if(len(self.worklog_history) > 0):
+            history_dropdown = [item["summary"] for item in self.worklog_history]
+            self.gui_util.create_normal_label(self,"Worklog History",TEXTSIZE.TEXT_SM,self.ROW_TOOLTIP,0,grid_args={"padx":WIDGET.PAD_X.value,"pady":WIDGET.PAD_Y.value})
+            combobox = ctk.CTkComboBox(self, values=history_dropdown, width=500, height=WIDGET.HEIGHT.value)
+            combobox.grid(row=self.ROW_TOOLTIP,column=1,columnspan=2, sticky="n",padx=WIDGET.PAD_X.value,pady=WIDGET.PAD_Y.value)
 
     def input_frame(self):
         self.jira_url_entry = ctk.CTkEntry(self, textvariable=self.key_var, width=WIDGET.WIDTH.value, height=WIDGET.HEIGHT.value)
@@ -88,9 +91,10 @@ class WorkLog(ctk.CTkFrame):
         self.time_label = ctk.CTkLabel(self, text="Date & Time", font=self.gui_util.font(TEXTSIZE.TEXT_SM.value))
         self.time_label.grid(row=self.ROW_TIME, column=0, padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
 
-        self.time_label = self.gui_util.create_normal_label(self,"Date & Time",TEXTSIZE.TEXT_SM,self.ROW_TIME,0,padx=WIDGET.PAD_X.value,pady=WIDGET.PAD_Y.value)
+        self.time_label = self.gui_util.create_normal_label(self,"Date & Time",TEXTSIZE.TEXT_SM,self.ROW_TIME,0,grid_args={"padx":WIDGET.PAD_X.value,"pady":WIDGET.PAD_Y.value})
 
-        self.start_date_entry = CTkDateEntry(self, variable=self.date_var, height=WIDGET.HEIGHT.value).grid(row=self.ROW_TIME, column=1, sticky='ew', padx=WIDGET.PAD_X.value)
+        self.start_date_entry = CTkDateEntry(self, variable=self.date_var, height=WIDGET.HEIGHT.value)
+        self.start_date_entry.grid(row=self.ROW_TIME, column=1, sticky='ew', padx=WIDGET.PAD_X.value)
 
         self.time_spend_entry = ctk.CTkEntry(self, textvariable=self.time_var, height=WIDGET.HEIGHT.value)
         self.time_spend_entry.grid(row=self.ROW_TIME, column=2, sticky='ew', padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value,  columnspan=self.MAX_COL_SPAN)
@@ -156,6 +160,9 @@ class WorkLog(ctk.CTkFrame):
         if(not issue_key):
             self.gui_util.show_dialog("Error", "cancel", "Issue Key is not found", options="OK")
             return
+        if(not self.fetch_command(issue_key)):
+            self.gui_util.show_dialog("Error", "cancel", "Can't find issue by key", options="OK")
+            return
         if(not time_spend or not re.match(REGEX.DATE.value,date)):
             self.gui_util.show_dialog("Error", "cancel", "Date and Time field required", options="OK")
             return
@@ -164,10 +171,12 @@ class WorkLog(ctk.CTkFrame):
         # TODO : handle response if success provide JIRA URL if checkbox is check provide link to google sheets
         # TODO : IF DIALOG "OK" is click clear all input field
         print(is_insert_sheet)
-        response = self.jira_util.post_insert_worklog(issue_key,time_spend,date_time,description)
+        # response = self.jira_util.post_insert_worklog(issue_key,time_spend,date_time,description)
         if(is_insert_sheet):
             self.insert_to_sheet(issue_key,date,time_spend,description)
+        self.save_history_json()
         print("Successfully inserted worklog")
+        
 
     #TODO : SHOULD CHECK EXIST Sheets too
     def insert_to_sheet(self,
@@ -218,6 +227,21 @@ class WorkLog(ctk.CTkFrame):
             self.tooltip_toplevel = ToolTip(self) 
         else:
             self.tooltip_toplevel.focus() 
+
+
+    def save_history_json(self):
+        history = []
+        if(common_util.find(STORAGE.STORAGE_PATH.value,STORAGE.HISTORY_FILE.value)):
+            history = (common_util.read_json_file(STORAGE.STORAGE_PATH.value,STORAGE.HISTORY_FILE.value))
+        json = {
+            "key" : self.key_var.get(),
+            "name" : self.issue_name,
+            "summary" : f"{self.key_var.get()} : {self.issue_name}"
+        }
+        history.append(json)
+        common_util.save_file(STORAGE.STORAGE_PATH.value,STORAGE.HISTORY_FILE.value,history)
+        self.worklog_history.append(json)
+
 
 
 
