@@ -5,7 +5,6 @@ from util.gui_util import GuiUtil
 from util.jira_util import JiraUtil
 import re
 # TODO : REFACTOR , made it easier to read.
-# TODO : make core function check for option hypertext, text, error (red color text)
 class ApiPage(ctk.CTkFrame):
         def __init__(
                       self,
@@ -26,7 +25,6 @@ class ApiPage(ctk.CTkFrame):
                 self.step_frame()
                 self.input_frame()
 
-                #TODO : Make steps -> Object with option for hyperLink | text if equal hyperLink use hyperLink function
         def step_frame(self) -> None :
                 step_frame = ctk.CTkFrame(self, fg_color="transparent")
                 step_frame.grid(row=1,column=0, padx = WIDGET.PAD_X.value, pady = WIDGET.PAD_Y.value)
@@ -38,12 +36,12 @@ class ApiPage(ctk.CTkFrame):
                 ]
                 for idx, text in enumerate(steps):
                         if(idx == 0):
-                                label = ctk.CTkLabel(step_frame,text=text,font=self.gui_util.font(TEXTSIZE.TEXT_SM.value),cursor="hand2",text_color="#75add8")
+                                label = self.gui_util.create_hyperlink_label(step_frame,text, TEXTSIZE.TEXT_SM, idx, 0, grid_args={"sticky":"w","padx":WIDGET.PAD_X.value,"pady":10})
                                 label.bind("<Button-1>",lambda e:common_util.open_url(URL.JIRA_GET_API_URL.value))
-                                label.grid(row=idx,column=0,sticky='w', padx = WIDGET.PAD_X.value, pady = 10)
                         else:
-                                label = ctk.CTkLabel(step_frame,text=text, font=self.gui_util.font(TEXTSIZE.TEXT_SM.value))
-                                label.grid(row=idx,column=0,sticky='w', padx = WIDGET.PAD_X.value, pady = 10)
+                                # label = ctk.CTkLabel(step_frame,text=text, font=self.gui_util.font(TEXTSIZE.TEXT_SM.value))
+                                # label.grid(row=idx,column=0,sticky='w', padx = WIDGET.PAD_X.value, pady = 10)
+                                label = self.gui_util.create_normal_label(step_frame,text,TEXTSIZE.TEXT_SM,idx,0,grid_args={"sticky":"w","padx":WIDGET.PAD_X.value,"pady":10})
 
         def input_frame(self) -> None  :
                 input_frame = ctk.CTkFrame(self, fg_color="transparent")

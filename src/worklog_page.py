@@ -58,10 +58,10 @@ class WorkLog(ctk.CTkFrame):
         label.grid(row=self.ROW_TOOLTIP,column=self.MAX_COL_SPAN,columnspan=self.MAX_COL_SPAN, sticky="e")
         if(len(self.worklog_history) > 0):
             history_dropdown = [item["summary"] for item in self.worklog_history]
-            #TODO: ADD HyperLink / color , cursor for log
             self.gui_util.create_normal_label(self,"Worklog History",TEXTSIZE.TEXT_SM,self.ROW_TOOLTIP,0,grid_args={"padx":WIDGET.PAD_X.value,"pady":WIDGET.PAD_Y.value})
-            self.worklog_combobox = ctk.CTkComboBox(self, values=history_dropdown, width=500, height=WIDGET.HEIGHT.value, command=lambda e: self.open_worklog(self.worklog_combobox))
+            self.worklog_combobox = ctk.CTkComboBox(self, values=history_dropdown, width=500, height=WIDGET.HEIGHT.value, command=lambda e: self.open_worklog(self.worklog_combobox),font=self.gui_util.font(TEXTSIZE.TEXT_X_SM.value,underline=True))
             self.worklog_combobox.grid(row=self.ROW_TOOLTIP,column=1,columnspan=2, sticky="n",padx=WIDGET.PAD_X.value,pady=WIDGET.PAD_Y.value)
+            self.worklog_combobox.configure(text_color="#75add8") 
     #TODO: FIX LOOP EVERYTIME CALLED
     def open_worklog(self,combobox : ctk.CTkComboBox):
         print(combobox.get())
@@ -82,7 +82,6 @@ class WorkLog(ctk.CTkFrame):
         self.issue_name = ""
         self.issue_name =  self.jira_util.fetch_issue(key)
         if self.issue_name:
-            #TODO : Use util of hyperlink
             self.issue_label.configure(text="Issue Name : " + self.issue_name,cursor="hand2")
             url = self.jira_util.full_url + "/browse/" + key
             self.issue_label.bind("<Button-1>", lambda e : common_util.open_url(url))
@@ -91,7 +90,7 @@ class WorkLog(ctk.CTkFrame):
         return False
 
     def body(self):
-        self.issue_label = ctk.CTkLabel(self, text="", font=self.gui_util.font(TEXTSIZE.TEXT_X_SM.value), text_color="lightblue")
+        self.issue_label = ctk.CTkLabel(self, text="", font=self.gui_util.font(TEXTSIZE.TEXT_X_SM.value), text_color="#75add8")
         self.issue_label.grid(row=self.ROW_ISSUE, column=0, sticky='nsew',columnspan=self.MAX_COL_SPAN)
 
         self.time_label = ctk.CTkLabel(self, text="Date & Time", font=self.gui_util.font(TEXTSIZE.TEXT_SM.value))

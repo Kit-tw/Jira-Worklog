@@ -2,7 +2,6 @@ from CTkMessagebox import CTkMessagebox
 import customtkinter as ctk
 from constant.Enum import (WIDGET,TEXTSIZE)
 from ctkdateentry import CTkDateEntry, CTkStringVar
-# def hyperlink(root,text,url):
 
 class GuiUtil:
     def __init__(self,parent=None):
@@ -49,12 +48,14 @@ class GuiUtil:
         label.grid(row=row, column=col, **grid_args)
         return label
     
-    def create_hyperlink_label(master,
+    def create_hyperlink_label(self,
+                               master,
                                text: str,
                                size: TEXTSIZE,
                                row: int,
-                               col: int ):
-        return
+                               col: int,
+                               grid_args: dict | None = None ):
+        return self.create_normal_label(master,text,size,row,col,label_args={"cursor":"hand2","text_color":"#75add8"},grid_args=grid_args)
 
     def font(self, size : int, **args):
         return ctk.CTkFont(family="Arial",size=size, **args)
