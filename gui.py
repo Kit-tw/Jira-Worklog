@@ -3,10 +3,7 @@ from constant.Enum import (STORAGE)
 import util.common_util as common_util
 from src.jira_add_account_page import ApiPage
 from src.worklog_page import WorkLog
-from util.gui_util import GuiUtil
-from src.tooltip_toplevel import ToolTip
-from util.jira_util import JiraUtil
-
+#TODO : CHECK expire date of API if expire date is greater remove file and show jira api page again
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()

@@ -15,7 +15,6 @@ class JiraUtil:
         self.gui = GuiUtil(self)
         self.full_url = self.get_jira_site(self.prefix_url)
 
-    #TODO : validate if user pass input as URL | key
     def fetch_issue(self,key):
         json_path = common_util.find(STORAGE.STORAGE_PATH.value, STORAGE.TOKEN_FILE.value)
         if(not json_path):
@@ -23,7 +22,6 @@ class JiraUtil:
             return 
         response = self.get_jira_issue(key)
         if(response.status_code.__ne__(200)):
-            #TODO : Test error dialog
             self.gui.show_dialog("Error", "cancel", f"Fetch issue error : {response.text}", options="OK")
             print("response GET issue error : " + response.text)
             return

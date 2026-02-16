@@ -3,11 +3,9 @@ from constant.Enum import (TEXTSIZE, STORAGE,URL,WIDGET)
 import util.common_util as common_util
 from util.gui_util import GuiUtil
 from util.jira_util import JiraUtil
+import re
 # TODO : REFACTOR , made it easier to read.
 # TODO : make core function check for option hypertext, text, error (red color text)
-# TODO : validate if sending by url or [/w].atlassian.net 
-# TODO : function before add json to check if input is working by sending request if validate pass then sending to worklog_page
-# TODO : should save expire date of jira api ? because when it expired it not said that your API is expire
 class ApiPage(ctk.CTkFrame):
         def __init__(
                       self,
@@ -77,7 +75,7 @@ class ApiPage(ctk.CTkFrame):
                         data = {
                                 "jira_email" : email,
                                 "jira_api" : api,
-                                "jira_prefix" : url,
+                                "jira_prefix" : self.get_prefix(url),
                                 "expire_date" : expire_date
                         }
                         response = common_util.get_user(email,api,url)
@@ -86,4 +84,10 @@ class ApiPage(ctk.CTkFrame):
                                 return
                         common_util.save_file(STORAGE.STORAGE_PATH.value,STORAGE.TOKEN_FILE.value,data)
                         self.after(0, self.master.show_worklog_page)
+        def get_prefix(self, url):
+                pattern = r'^(?:https?:\/?\/?)?([a-zA-Z0-9-]+)(?:\.atlassian\.net)?\/?$'
+                match = re.match(pattern, url)
+                if match:
+                        return match.group(1)
+                return None
 

@@ -11,7 +11,6 @@ class GitUtil:
         self.jira_util = JiraUtil()
         
 
-    # TODO : Add way to check if current_directory isn't git send Error
     def get_current_directory(self) -> str:
         return os.getcwd()
     

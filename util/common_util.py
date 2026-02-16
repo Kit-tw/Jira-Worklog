@@ -31,7 +31,7 @@ def create_directory(path : str):
 def open_url(url):
     webbrowser.open(url)
 
-def save_file(path: str, file : str, data : object) -> None:
+def save_file(path: str, file : str, data : object, showDialog : bool = True) -> None:
     try:
         check_directory(path)
         full_path = os.path.join(path,file)

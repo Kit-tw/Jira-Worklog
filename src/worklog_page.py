@@ -24,8 +24,6 @@ class WorkLog(ctk.CTkFrame):
     PLACEHOLDER_TIME = "Time spend e.g. 3h, 20m, 16s"
     PLACEHOLDER_DESCRIPTION = "Description"
     
-#TODO: Should use save jira Link if fetch issue success? then display as dropdown for next time use
-#TODO : ADD WORKLOG HISTORY PAGE BELOW SUBMIT BUTTON
 #TODO : FIX UI WIDTH WHEN TEXT LONG / AUTO GIT
 #TODO : StringVar when equal PlaceHolder when user focus remove text
     def __init__(self,
@@ -62,14 +60,17 @@ class WorkLog(ctk.CTkFrame):
             history_dropdown = [item["summary"] for item in self.worklog_history]
             #TODO: ADD HyperLink / color , cursor for log
             self.gui_util.create_normal_label(self,"Worklog History",TEXTSIZE.TEXT_SM,self.ROW_TOOLTIP,0,grid_args={"padx":WIDGET.PAD_X.value,"pady":WIDGET.PAD_Y.value})
-            combobox = ctk.CTkComboBox(self, values=history_dropdown, width=500, height=WIDGET.HEIGHT.value, command=lambda e: self.open_worklog(combobox))
-            combobox.grid(row=self.ROW_TOOLTIP,column=1,columnspan=2, sticky="n",padx=WIDGET.PAD_X.value,pady=WIDGET.PAD_Y.value)
+            self.worklog_combobox = ctk.CTkComboBox(self, values=history_dropdown, width=500, height=WIDGET.HEIGHT.value, command=lambda e: self.open_worklog(self.worklog_combobox))
+            self.worklog_combobox.grid(row=self.ROW_TOOLTIP,column=1,columnspan=2, sticky="n",padx=WIDGET.PAD_X.value,pady=WIDGET.PAD_Y.value)
     #TODO: FIX LOOP EVERYTIME CALLED
     def open_worklog(self,combobox : ctk.CTkComboBox):
         print(combobox.get())
         for item in self.worklog_history:
             if(item["summary"] == combobox.get()):
-                combobox.bind("<Button-1>", lambda e : common_util.open_url(self.jira_util.full_url + "/browse/" + item["key"]))
+                combobox.bind("<Button-1>", lambda e : common_util.open_url(self.get_jira_url(item["key"])))
+
+    def get_jira_url(self, key):
+        return self.jira_util.full_url + "/browse/" + key
         
     def input_frame(self):
         self.jira_url_entry = ctk.CTkEntry(self, textvariable=self.key_var, width=WIDGET.WIDTH.value, height=WIDGET.HEIGHT.value)
@@ -89,8 +90,6 @@ class WorkLog(ctk.CTkFrame):
             return True
         return False
 
-    #TODO : Should use scroll bar for adding multiple log then move last grid section to footer
-    #TODO : IF you add scroll bar you have to add delete button for if section > 1
     def body(self):
         self.issue_label = ctk.CTkLabel(self, text="", font=self.gui_util.font(TEXTSIZE.TEXT_X_SM.value), text_color="lightblue")
         self.issue_label.grid(row=self.ROW_ISSUE, column=0, sticky='nsew',columnspan=self.MAX_COL_SPAN)
@@ -175,24 +174,34 @@ class WorkLog(ctk.CTkFrame):
             return
         #TODO : IF TOP LEVEL IS Aleady OPEN then check the path in this too
         date_time = common_util.date_str_to_iso(date)
-        # TODO : handle response if success provide JIRA URL if checkbox is check provide link to google sheets
-        # TODO : IF DIALOG "OK" is click clear all input field
-        print(is_insert_sheet)
         response = self.jira_util.post_insert_worklog(issue_key,time_spend,date_time,description)
-        if(is_insert_sheet):
-            self.insert_to_sheet(issue_key,date,time_spend,description)
-        self.save_history_json()
-        print("Successfully inserted worklog")
+        if(response.status_code == 200):
+            if(is_insert_sheet):
+                self.insert_to_sheet(issue_key,date,time_spend,description)
+            self.save_history_json()
+            dialog_msg = self.gui_util.show_dialog("Success", "check", "Worklog has been inserted", option_1="OK", option_2="View in Jira")
+            if(dialog_msg.get() == "View in Jira"):
+                common_util.open_url(self.get_jira_url(issue_key))
+            else:
+                self.clear_input()
         
+    def clear_input(self):
+        self.key_var.set(self.PLACEHOLDER_URL)
+        self.time_var.set(self.PLACEHOLDER_TIME)
+        self.description_var.set(self.PLACEHOLDER_DESCRIPTION)
+        self.insert_sheet.deselect()
+        self.automate_options.set("Manual")
+        self.hide_body_widgets()
 
-    #TODO : SHOULD CHECK EXIST Sheets too
     def insert_to_sheet(self,
                         issue_key : str,
                         date : str,
                         time_spend : str,
                         description : str):
         if(not self.api_credentials):
-            #TODO : Throw to insert google API page 
+            dialog_msg = self.gui_util.show_dialog("Warning","warning","google API in storage not found", option_1="Add", option_2="Exit")
+            if(dialog_msg.get() == "Add"):
+                self.open_googleapi_toplevel()
             return
         SheetsUtil(key=issue_key,date=date,time=time_spend,description=description)
     
@@ -238,18 +247,21 @@ class WorkLog(ctk.CTkFrame):
 
 
     def save_history_json(self):
-        #TODO  : FIX case dupe when key is the same
         history = []
         if(common_util.find(STORAGE.STORAGE_PATH.value,STORAGE.HISTORY_FILE.value)):
-            history = (common_util.read_json_file(STORAGE.STORAGE_PATH.value,STORAGE.HISTORY_FILE.value))
+            history_json = (common_util.read_json_file(STORAGE.STORAGE_PATH.value,STORAGE.HISTORY_FILE.value))
+            history_keyset = set(item["key"] for item in history_json)
+            if(self.key_var.get() in history_keyset):
+                return
         json = {
             "key" : self.key_var.get(),
             "name" : self.issue_name,
             "summary" : f"{self.key_var.get()} : {self.issue_name}"
         }
         history.append(json)
-        common_util.save_file(STORAGE.STORAGE_PATH.value,STORAGE.HISTORY_FILE.value,history)
+        common_util.save_file(STORAGE.STORAGE_PATH.value,STORAGE.HISTORY_FILE.value,history,False)
         self.worklog_history.append(json)
+        self.worklog_combobox.configure(values=[item["summary"] for item in self.worklog_history])
 
 
 
