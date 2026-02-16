@@ -178,7 +178,7 @@ class WorkLog(ctk.CTkFrame):
         # TODO : handle response if success provide JIRA URL if checkbox is check provide link to google sheets
         # TODO : IF DIALOG "OK" is click clear all input field
         print(is_insert_sheet)
-        # response = self.jira_util.post_insert_worklog(issue_key,time_spend,date_time,description)
+        response = self.jira_util.post_insert_worklog(issue_key,time_spend,date_time,description)
         if(is_insert_sheet):
             self.insert_to_sheet(issue_key,date,time_spend,description)
         self.save_history_json()
@@ -222,6 +222,7 @@ class WorkLog(ctk.CTkFrame):
         key = git_util.get_issueName()
         if(key and self.fetch_command(key)):
            #TODO : FIX BUG if delete text placeHolder gone , implement or remove placeholder use frame to display description for each input instead      
+           #TODO : add feature like the commit message and user can choose which commit to diff from previous log then auto fill description with commit message and time spend with time between 2 commit and date with commit date
            obj = git_util.get_git_detail()
            self.key_var.set(key)
            self.date_var.set(obj["date"])
@@ -237,6 +238,7 @@ class WorkLog(ctk.CTkFrame):
 
 
     def save_history_json(self):
+        #TODO  : FIX case dupe when key is the same
         history = []
         if(common_util.find(STORAGE.STORAGE_PATH.value,STORAGE.HISTORY_FILE.value)):
             history = (common_util.read_json_file(STORAGE.STORAGE_PATH.value,STORAGE.HISTORY_FILE.value))

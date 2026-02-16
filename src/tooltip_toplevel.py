@@ -22,7 +22,8 @@ class ToolTip(ctk.CTkToplevel):
              ]
         if(common_util.find(STORAGE.STORAGE_PATH.value,STORAGE.INFORMATION_FILE.value)):
             info = common_util.read_json_file(STORAGE.STORAGE_PATH.value,STORAGE.INFORMATION_FILE.value)
-            key.append(("Google Sheet Link : ", "Open",lambda: common_util.open_url(self.sheet_link)))
+            get_sheet_url = self.get_sheet_url(info['spreadsheetId'])
+            key.append(("Google Sheet Link : ", "Open",lambda: common_util.open_url(get_sheet_url)))
         
         self.info_section(key)
         return
