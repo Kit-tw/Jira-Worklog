@@ -22,7 +22,7 @@ class JiraUtil:
             return 
         response = self.get_jira_issue(key)
         if(response.status_code.__ne__(200)):
-            self.gui.show_dialog("Error", "cancel", f"Fetch issue error : {response.text}", options="OK")
+            self.gui.show_dialog("Error", "cancel", f"Fetch issue #{key} error : {response.text}", options="OK")
             print("response GET issue error : " + response.text)
             return
         return json.loads(response.text)["fields"]["summary"]
