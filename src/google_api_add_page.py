@@ -25,6 +25,7 @@ class GoogleApiPage(ctk.CTkToplevel):
         file_path = filedialog.askopenfilename(filetypes=[("JSON Files","*.JSON")])
         #VALIDATE BY OPEN FILE CHECK JSON
         dest_path = f"{STORAGE.STORAGE_PATH.value}/{STORAGE.GOOGLE_API_CREDENTIALS_FILE.value}"
+        #TODO : IF upload success destroy top level
         common_util.copy_file(file_path,dest_path)
 
     
