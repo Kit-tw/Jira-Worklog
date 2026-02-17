@@ -24,7 +24,6 @@ class WorkLog(ctk.CTkFrame):
     PLACEHOLDER_TIME = "Time spend e.g. 3h, 20m, 16s"
     PLACEHOLDER_DESCRIPTION = "Description"
     
-#TODO : StringVar when equal PlaceHolder when user focus remove text
     def __init__(self,
                   parent : any):
         super().__init__(parent)
@@ -36,7 +35,7 @@ class WorkLog(ctk.CTkFrame):
         self.tooltip_toplevel = None
         self.issue_name=""
         self.key_var = ctk.StringVar(self)
-        self.date_var = ctk.StringVar(self)
+        self.date_var = ctk.StringVar(self, value=common_util.get_currentdate_forentry())
         self.time_var = ctk.StringVar(self)
         self.description_var = ctk.StringVar(self)
         self.worklog_history = common_util.get_worklog_history()
@@ -72,14 +71,11 @@ class WorkLog(ctk.CTkFrame):
         return self.jira_util.full_url + "/browse/" + key
         
     def input_frame(self):
-        # self.jira_url_entry = ctk.CTkEntry(self, textvariable=self.key_var, width=WIDGET.WIDTH.value, height=WIDGET.HEIGHT.value)
-        # self.jira_url_entry.grid(row=self.ROW_INPUT,column=0, sticky='ew',padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value, columnspan=self.MAX_COL_SPAN)
         self.jira_url_entry = self.gui_util.create_entry_with_placeholder(self,self.PLACEHOLDER_URL,self.key_var,self.ROW_INPUT,0,entry_args={"width":WIDGET.WIDTH.value,"height":WIDGET.HEIGHT.value},grid_args={"sticky":"ew","padx":WIDGET.PAD_X.value,"pady":WIDGET.PAD_Y.value,"columnspan":self.MAX_COL_SPAN})
         fetch_btn = ctk.CTkButton(self,text="fetch",command=lambda : self.fetch_command(self.jira_url_entry.get()), height=WIDGET.HEIGHT.value)
         fetch_btn.grid(row=self.ROW_INPUT,column=3, sticky='ew',padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
 
     def fetch_command(self, key:str):
-        # self.issue_name = ""
         self.issue_name =  self.jira_util.fetch_issue(key)
         if self.issue_name:
             self.issue_label.configure(text="Issue Name : " + self.issue_name,cursor="hand2")
@@ -89,12 +85,7 @@ class WorkLog(ctk.CTkFrame):
         return False
 
     def body(self):
-        # self.issue_label = ctk.CTkLabel(self, text="", font=self.gui_util.font(TEXTSIZE.TEXT_X_SM.value), text_color="#75add8")
-        # self.issue_label.grid(row=self.ROW_ISSUE, column=0, sticky='nsew',columnspan=self.MAX_COL_SPAN)
         self.issue_label = self.gui_util.create_normal_label(self,"",TEXTSIZE.TEXT_X_SM,self.ROW_ISSUE,0,label_args={"text_color":"#75add8"},grid_args={"sticky":"nsew","columnspan":self.MAX_COL_SPAN})
-
-        # self.time_label = ctk.CTkLabel(self, text="Date & Time", font=self.gui_util.font(TEXTSIZE.TEXT_SM.value))
-        # self.time_label.grid(row=self.ROW_TIME, column=0, padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
 
         self.time_label = self.gui_util.create_normal_label(self,"Date & Time",TEXTSIZE.TEXT_SM,self.ROW_TIME,0,grid_args={"padx":WIDGET.PAD_X.value,"pady":WIDGET.PAD_Y.value})
 
@@ -102,19 +93,12 @@ class WorkLog(ctk.CTkFrame):
         self.start_date_entry.grid(row=self.ROW_TIME, column=1, sticky='ew', padx=WIDGET.PAD_X.value)
       
 
-        # self.time_spend_entry = ctk.CTkEntry(self, textvariable=self.time_var, height=WIDGET.HEIGHT.value)
-        # self.time_spend_entry.grid(row=self.ROW_TIME, column=2, sticky='ew', padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value,  columnspan=self.MAX_COL_SPAN)
         self.time_spend_entry = self.gui_util.create_entry_with_placeholder(self,self.PLACEHOLDER_TIME,self.time_var,self.ROW_TIME,2,entry_args={"height":WIDGET.HEIGHT.value},grid_args={"sticky":"ew","padx":WIDGET.PAD_X.value,"pady":WIDGET.PAD_Y.value,"columnspan":self.MAX_COL_SPAN})
-        # self.start_label = ctk.CTkLabel(self, text="Description", font=self.gui_util.font(TEXTSIZE.TEXT_SM.value))
-        # self.start_label.grid(row=self.ROW_DATE, column=0, padx=WIDGET.PAD_X.value)
+        
         self.start_label = self.gui_util.create_normal_label(self,"Description",TEXTSIZE.TEXT_SM,self.ROW_DATE,0,grid_args={"padx":WIDGET.PAD_X.value})
 
-        # self.description_entry = ctk.CTkEntry(self, textvariable=self.description_var, height=WIDGET.HEIGHT.value)
-        # self.description_entry.grid(row=self.ROW_DATE, column=1, sticky='ew', padx=WIDGET.PAD_X.value, columnspan=self.MAX_COL_SPAN)
         self.description_entry = self.gui_util.create_entry_with_placeholder(self,self.PLACEHOLDER_DESCRIPTION,self.description_var,self.ROW_DATE,1,entry_args={"height":WIDGET.HEIGHT.value},grid_args={"sticky":"ew","padx":WIDGET.PAD_X.value,"columnspan":self.MAX_COL_SPAN,"pady":WIDGET.PAD_Y.value})
 
-        # self.automate_label = ctk.CTkLabel(self, text="Automate Worklog", font=self.gui_util.font(TEXTSIZE.TEXT_SM.value))
-        # self.automate_label.grid(row=self.ROW_OPTIONS, column=0, padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
         self.automate_label = self.gui_util.create_normal_label(self,"Automate Worklog",TEXTSIZE.TEXT_SM,self.ROW_OPTIONS,0,grid_args={"padx":WIDGET.PAD_X.value,"pady":WIDGET.PAD_Y.value})
 
         self.automate_options = ctk.CTkComboBox(self, values=["Manual","Git"], command=self.combobox_callback)
@@ -122,6 +106,8 @@ class WorkLog(ctk.CTkFrame):
 
         self.insert_sheet = ctk.CTkCheckBox(self, text="Insert to google sheets", font=self.gui_util.font(TEXTSIZE.TEXT_X_SM.value), command=self.checkbox_callback)
         self.insert_sheet.grid(row=self.ROW_OPTIONS, column=2, padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
+        if(self.api_credentials):
+            self.insert_sheet.select()
 
         self.confirm_btn = ctk.CTkButton(self, text="Confirm & Log Work", height=WIDGET.HEIGHT.value, command=self.insert_worklog)
         self.confirm_btn.grid(row=self.ROW_FOOTER, column=0, columnspan=1, sticky='w', padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
@@ -146,22 +132,14 @@ class WorkLog(ctk.CTkFrame):
         #TODO : IF TOP LEVEL IS Aleady OPEN then check the path in this too
         date_time = common_util.date_str_to_iso(date)
         response = self.jira_util.post_insert_worklog(issue_key,time_spend,date_time,description)
-        if(response.status_code == 200):
+        print(response.status_code)
+        if(response.status_code == 201):
             if(is_insert_sheet):
                 self.insert_to_sheet(issue_key,date,time_spend,description)
             self.save_history_json()
             dialog_msg = self.gui_util.show_dialog("Success", "check", "Worklog has been inserted", option_1="OK", option_2="View in Jira")
             if(dialog_msg.get() == "View in Jira"):
                 common_util.open_url(self.get_jira_url(issue_key))
-            else:
-                self.clear_input()
-        
-    def clear_input(self):
-        self.key_var.set(self.PLACEHOLDER_URL)
-        self.time_var.set(self.PLACEHOLDER_TIME)
-        self.description_var.set(self.PLACEHOLDER_DESCRIPTION)
-        self.insert_sheet.deselect()
-        self.automate_options.set("Manual")
 
     def insert_to_sheet(self,
                         issue_key : str,
@@ -199,7 +177,6 @@ class WorkLog(ctk.CTkFrame):
         git_util = GitUtil()
         key = git_util.get_issueName()
         if(key and self.fetch_command(key)):
-           #TODO : FIX BUG if delete text placeHolder gone , implement or remove placeholder use frame to display description for each input instead      
            #TODO : add feature like the commit message and user can choose which commit to diff from previous log then auto fill description with commit message and time spend with time between 2 commit and date with commit date
            obj = git_util.get_git_detail()
            self.key_var.set(key)
@@ -227,7 +204,9 @@ class WorkLog(ctk.CTkFrame):
             "name" : self.issue_name,
             "summary" : f"{self.key_var.get()} : {self.issue_name}"
         }
+        print(history)
         history.append(json)
+        print(history)
         common_util.save_file(STORAGE.STORAGE_PATH.value,STORAGE.HISTORY_FILE.value,history,False)
         self.worklog_history.append(json)
         self.worklog_combobox.configure(values=[item["summary"] for item in self.worklog_history])

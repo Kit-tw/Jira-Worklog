@@ -37,7 +37,8 @@ def save_file(path: str, file : str, data : object, showDialog : bool = True) ->
         full_path = os.path.join(path,file)
         with open(full_path,'w') as file:
             json.dump(data,file)
-            GuiUtil().show_dialog("Success", "check", f"file has been saved at {full_path}", options="OK")
+            if(showDialog):
+                GuiUtil().show_dialog("Success", "check", f"file has been saved at {full_path}", options="OK")
     except Exception as e:
         print(e)
         GuiUtil().show_dialog("Error", "cancel", "Failed to save file", options="OK")
@@ -79,6 +80,7 @@ def get_user(email,api,prefix):
     }
     return requests.request("GET",url,headers=headers,auth=auth)
 
+#TODO : DELETE if at start of the month / user click clear history 
 def get_worklog_history():
     if(find(STORAGE.STORAGE_PATH.value,STORAGE.HISTORY_FILE.value)):
         history = read_json_file(STORAGE.STORAGE_PATH.value,STORAGE.HISTORY_FILE.value)
@@ -87,3 +89,8 @@ def get_worklog_history():
         except Exception:
             return []
     return []
+
+
+def get_currentdate_forentry():
+    now = datetime.now()
+    return f"{now.day:02d}/{now.month:02d}/{now.year}"

@@ -39,8 +39,6 @@ class ApiPage(ctk.CTkFrame):
                                 label = self.gui_util.create_hyperlink_label(step_frame,text, TEXTSIZE.TEXT_SM, idx, 0, grid_args={"sticky":"w","padx":WIDGET.PAD_X.value,"pady":10})
                                 label.bind("<Button-1>",lambda e:common_util.open_url(URL.JIRA_GET_API_URL.value))
                         else:
-                                # label = ctk.CTkLabel(step_frame,text=text, font=self.gui_util.font(TEXTSIZE.TEXT_SM.value))
-                                # label.grid(row=idx,column=0,sticky='w', padx = WIDGET.PAD_X.value, pady = 10)
                                 label = self.gui_util.create_normal_label(step_frame,text,TEXTSIZE.TEXT_SM,idx,0,grid_args={"sticky":"w","padx":WIDGET.PAD_X.value,"pady":10})
 
         def input_frame(self) -> None  :
