@@ -37,6 +37,7 @@ class GitUtil:
         current_date = date_time[-2]
         time : timedelta = before_date - current_date
         time_in_s = time.total_seconds()
+        #TODO : Should do min or round up
         hours = divmod(time_in_s, 3600)[0]
         #TODO : Clear messy code
         working_hours = 8 if hours > 8 else hours
