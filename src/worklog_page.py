@@ -209,10 +209,8 @@ class WorkLog(ctk.CTkFrame):
 
 
     def save_history_json(self):
-        history = []
-        if(common_util.find(STORAGE.STORAGE_PATH.value,STORAGE.HISTORY_FILE.value)):
-            history_json = (common_util.read_json_file(STORAGE.STORAGE_PATH.value,STORAGE.HISTORY_FILE.value))
-            history_keyset = set(item["key"] for item in history_json)
+        if(len(self.worklog_history) > 0):
+            history_keyset = set(item["key"] for item in self.worklog_history)
             if(self.key_var.get() in history_keyset):
                 return
         json = {
@@ -220,11 +218,8 @@ class WorkLog(ctk.CTkFrame):
             "name" : self.issue_name,
             "summary" : f"{self.key_var.get()} : {self.issue_name}"
         }
-        print(history)
-        history.append(json)
-        print(history)
-        common_util.save_file(STORAGE.STORAGE_PATH.value,STORAGE.HISTORY_FILE.value,history,False)
         self.worklog_history.append(json)
+        common_util.save_file(STORAGE.STORAGE_PATH.value,STORAGE.HISTORY_FILE.value,self.worklog_history,False)
         self._header_history()
 
 
