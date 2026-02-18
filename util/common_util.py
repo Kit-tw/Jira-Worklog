@@ -43,6 +43,18 @@ def save_file(path: str, file : str, data : object, showDialog : bool = True) ->
         print(e)
         GuiUtil().show_dialog("Error", "cancel", "Failed to save file", options="OK")
 
+def delete_file(path: str, file: str):
+    try:
+        full_path = os.path.join(path, file)
+        if os.path.isfile(full_path):
+            os.remove(full_path)
+            GuiUtil().show_dialog("Success", "check", f"file '{file}' has been deleted from {path}", options="OK")
+        else:
+            GuiUtil().show_dialog("Error", "cancel", f"file '{file}' not found in {path}", options="OK")
+    except Exception as e:
+        print(e)
+        GuiUtil().show_dialog("Error", "cancel", "Failed to delete file", options="OK")
+
 def read_json_file(path: str, filename: str) -> any :
     try:
         full_path = os.path.join(path, filename)
@@ -94,3 +106,8 @@ def get_worklog_history():
 def get_currentdate_forentry():
     now = datetime.now()
     return f"{now.day:02d}/{now.month:02d}/{now.year}"
+
+def now_greater_than_date(date_string):
+    now = datetime.now()
+    input_date = datetime.strptime(date_string, "%d/%m/%Y")
+    return now > input_date

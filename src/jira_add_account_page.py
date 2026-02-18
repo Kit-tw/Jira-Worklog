@@ -18,7 +18,7 @@ class ApiPage(ctk.CTkFrame):
                 
 
         def show_title(self) -> None :
-                title = ctk.CTkLabel(self,text="How to get API token",font=self.gui_util(TEXTSIZE.TEXT_LG.value))
+                title = ctk.CTkLabel(self,text="How to get API token",font=self.gui_util.font(TEXTSIZE.TEXT_LG.value))
                 title.grid(row = 0, column = 0, padx = WIDGET.PAD_X.value, pady = WIDGET.PAD_Y.value)
 
         def body(self) -> None :
@@ -52,7 +52,7 @@ class ApiPage(ctk.CTkFrame):
                 self.api_token_entry.grid(row=2,column=0, pady = 5)
                 self.jira_url_entry = ctk.CTkEntry(input_frame, placeholder_text="Jira Site e.g. company.atlassian.net",width=300 , height= WIDGET.HEIGHT.value)
                 self.jira_url_entry.grid(row=3,column=0, pady = 5)
-                self.expire_date_entry = ctk.CTkEntry(input_frame, placeholder_text="Expiry date",width=300 , height= WIDGET.HEIGHT.value)
+                self.expire_date_entry = ctk.CTkEntry(input_frame, placeholder_text="Expiry date: dd/mm/yyyy",width=300 , height= WIDGET.HEIGHT.value)
                 self.expire_date_entry.grid(row=4,column=0, pady = 5)
                 
         def submit_button(self) -> None :
@@ -68,13 +68,14 @@ class ApiPage(ctk.CTkFrame):
                         self.gui_util.show_dialog("Error", "cancel", "Please enter all input field.",options="OK")
                         return
                 else:
+                        prefix = self.get_prefix(url)
                         data = {
                                 "jira_email" : email,
                                 "jira_api" : api,
-                                "jira_prefix" : self.get_prefix(url),
+                                "jira_prefix" : prefix,
                                 "expire_date" : expire_date
                         }
-                        response = common_util.get_user(email,api,url)
+                        response = common_util.get_user(email,api,prefix)
                         if(response.status_code != 200):
                                 self.gui_util.show_dialog("Error", "cancel", "Can't fetch user from your input.",options="OK")
                                 return
