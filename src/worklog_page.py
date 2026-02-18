@@ -10,7 +10,7 @@ from constant.Enum import (TEXTSIZE,WIDGET,REGEX,STORAGE)
 from ctkdateentry import CTkDateEntry, CTkStringVar
 import re
 from PIL import Image
-#TODO : NEW UI / grid configrue
+#TODO : FIX UI / grid configrue
 class WorkLog(ctk.CTkFrame):
     ROW_TOOLTIP = 0
     ROW_INPUT = 1
@@ -120,11 +120,11 @@ class WorkLog(ctk.CTkFrame):
 
         self.automate_label = self.gui_util.create_normal_label(self,"Automate Worklog",TEXTSIZE.TEXT_SM,self.ROW_OPTIONS,0,grid_args={"padx":WIDGET.PAD_X.value,"pady":WIDGET.PAD_Y.value})
 
-        self.automate_options = ctk.CTkComboBox(self, values=["Manual","Git"], command=self.combobox_callback)
+        self.automate_options = ctk.CTkComboBox(self, values=["Manual","Git"], command=self.combobox_callback , height=WIDGET.HEIGHT.value)
         self.automate_options.grid(row=self.ROW_OPTIONS, column=1, padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
 
-        self.insert_sheet = ctk.CTkCheckBox(self, text="Insert to google sheets", font=self.gui_util.font(TEXTSIZE.TEXT_X_SM.value), command=self.checkbox_callback)
-        self.insert_sheet.grid(row=self.ROW_OPTIONS, column=2, padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
+        self.insert_sheet = ctk.CTkCheckBox(self, text="Insert to sheet", font=self.gui_util.font(TEXTSIZE.TEXT_X_SM.value), command=self.checkbox_callback)
+        self.insert_sheet.grid(row=self.ROW_OPTIONS, column=2, columnspan=2, padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
         if(self.api_credentials):
             self.insert_sheet.select()
 
@@ -148,7 +148,6 @@ class WorkLog(ctk.CTkFrame):
         if(not time_spend or not re.match(REGEX.DATE.value,date)):
             self.gui_util.show_dialog("Error", "cancel", "Date and Time field required", options="OK")
             return
-        #TODO : IF TOP LEVEL IS Aleady OPEN then check the path in this too
         date_time = common_util.date_str_to_iso(date)
         # response = self.jira_util.post_insert_worklog(issue_key,time_spend,date_time,description)
         # print(response.status_code)

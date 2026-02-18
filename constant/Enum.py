@@ -5,6 +5,8 @@ class URL(Enum):
     def JIRA_POST_INSERT_WORKLOG_PATH(key :str) -> str :
         return f"/rest/api/3/issue/{key}/worklog"
     JIRA_GET_API_URL = "https://id.atlassian.com/manage-profile/security/api-tokens"
+    GSPREAD_GOOGLE_API_DOC = "https://docs.gspread.org/en/latest/oauth2.html#for-end-users-using-oauth-client-id"
+    GOOGLE_DEVELOPER_CONSOLE = "https://console.cloud.google.com/apis/dashboard"
     JIRA_ISSUE_PATH = "/rest/api/3/issue/"
     SPREAD_SHEET_ID = "1gyU9eyHkcHGO5LdHW9kn6zXxUWR58ILg0-fX5WRbOlQ"
     SPREAD_SHEET_NAME = "Worklog Template"

@@ -64,6 +64,14 @@ def read_json_file(path: str, filename: str) -> any :
         GuiUtil().show_dialog("Error", "cancel", "Failed to read file", options="OK")
         return None
 
+def read_json_file_by_full_path(full_path: str) -> any :
+    try:
+        with open(full_path,'r') as file:
+            return json.load(file)
+    except Exception as e:
+        GuiUtil().show_dialog("Error", "cancel", "Failed to read file", options="OK")
+        return None
+
 
 def date_str_to_iso(date_str) -> str:
     dt = datetime.strptime(date_str, "%d/%m/%Y")
@@ -92,7 +100,6 @@ def get_user(email,api,prefix):
     }
     return requests.request("GET",url,headers=headers,auth=auth)
 
-#TODO : DELETE if at start of the month / user click clear history 
 def get_worklog_history():
     if(find(STORAGE.STORAGE_PATH.value,STORAGE.HISTORY_FILE.value)):
         history = read_json_file(STORAGE.STORAGE_PATH.value,STORAGE.HISTORY_FILE.value)

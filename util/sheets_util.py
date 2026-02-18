@@ -177,7 +177,6 @@ class SheetsUtil:
         try:
             worksheet = self.worksheet.worksheet(worklog_sheetname)
         except gspread.exceptions.WorksheetNotFound:
-            #TODO: Dialog asking for Dupe? or Unnessary
             print("debug: sheet not Found")
             template_sheet = self.worksheet.worksheet(self.TEMPLATE_SHEETNAME)
             self.worksheet.duplicate_sheet(
