@@ -1,7 +1,0 @@
-tinker
-ttkbootstrap
-gspread
-customtkinter
-CTkMessagebox
-CTkDateEntry
-GitPython
