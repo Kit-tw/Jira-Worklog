@@ -21,7 +21,7 @@ class STORAGE(Enum):
     INFORMATION_FILE = "info.json"
     HISTORY_FILE = "history.json"
     GOOGLE_SHEET_IMAGE = "google_sheet_image.png"
-    TOOLTIP_IMAGE = "tooltip_image.png"
+    TOOLTIP_IMAGE = "tooltip_image1.png"
     STORAGE_PATH = f"{GET_DOCUMENT_PATH()}/{DIRECTORY_NAME}"
     IMAGE_PATH = f"{GET_PROJECT_ROOT()}/{IMAGE_DIRECTORY_NAME}"
     TOKEN_PATH = f"{STORAGE_PATH}/{TOKEN_FILE}"

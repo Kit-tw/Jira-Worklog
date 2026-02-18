@@ -47,18 +47,34 @@ class WorkLog(ctk.CTkFrame):
         
 
     def header_frame(self):
-        img_path = common_util.find(STORAGE.IMAGE_PATH.value,STORAGE.TOOLTIP_IMAGE.value)
-        img = ctk.CTkImage(light_image=Image.open(img_path),dark_image=Image.open(img_path),size=(50, 50))
-        label = ctk.CTkLabel(self, image=img, text="")
-        label.image = img
-        label.bind("<Button-1>", lambda e: self.open_tooltip_toplevel())
-        label.grid(row=self.ROW_TOOLTIP,column=self.MAX_COL_SPAN,columnspan=self.MAX_COL_SPAN, sticky="e")
+        self._header_tooltip()
+        self._header_history()
+
+    def _header_tooltip(self):
+            img_path = common_util.find(STORAGE.IMAGE_PATH.value,STORAGE.TOOLTIP_IMAGE.value)
+            img = ctk.CTkImage(light_image=Image.open(img_path),dark_image=Image.open(img_path),size=(30, 30))
+            label = ctk.CTkLabel(self, image=img, text="", cursor="hand2")
+            label.image = img
+            label.bind("<Button-1>", lambda e: self.open_tooltip_toplevel())
+            label.grid(row=self.ROW_TOOLTIP,column=self.MAX_COL_SPAN, sticky="nesw", pady=WIDGET.PAD_Y.value)
+
+    def _header_history(self):
         if(len(self.worklog_history) > 0):
             history_dropdown = [item["summary"] for item in self.worklog_history]
-            self.gui_util.create_normal_label(self,"Worklog History",TEXTSIZE.TEXT_SM,self.ROW_TOOLTIP,0,grid_args={"padx":WIDGET.PAD_X.value,"pady":WIDGET.PAD_Y.value})
-            self.worklog_combobox = ctk.CTkComboBox(self, values=history_dropdown, width=500, height=WIDGET.HEIGHT.value, command=lambda e: self.open_worklog(self.worklog_combobox),font=self.gui_util.font(TEXTSIZE.TEXT_X_SM.value,underline=True))
-            self.worklog_combobox.grid(row=self.ROW_TOOLTIP,column=1,columnspan=2, sticky="n",padx=WIDGET.PAD_X.value,pady=WIDGET.PAD_Y.value)
-            self.worklog_combobox.configure(text_color="#75add8") 
+            self._history_label = self.gui_util.create_normal_label(self,"Worklog History",TEXTSIZE.TEXT_X_SM,self.ROW_TOOLTIP,0,grid_args={"padx":WIDGET.PAD_X.value,"pady":WIDGET.PAD_Y.value})
+            self._worklog_combobox = ctk.CTkComboBox(self, values=history_dropdown, width=400, height=WIDGET.HEIGHT.value, command=lambda e: self.open_worklog(self._worklog_combobox),font=self.gui_util.font(TEXTSIZE.TEXT_X_SM.value,underline=True))
+            self._worklog_combobox.grid(row=self.ROW_TOOLTIP,column=1, sticky="n",padx=WIDGET.PAD_X.value,pady=WIDGET.PAD_Y.value)
+            self._worklog_combobox.configure(text_color="#75add8")
+            self._clear_history_btn = ctk.CTkButton(self,text="Clear History", command=self.clear_history, height=WIDGET.HEIGHT.value)
+            self._clear_history_btn.grid(row=self.ROW_TOOLTIP,column=2, sticky="w",pady=WIDGET.PAD_Y.value)
+
+    def clear_history(self):
+        dialog = self.gui_util.show_dialog("Confirm", "warning", "Are you sure you want to clear history?", option_1="Yes", option_2="No")
+        if(dialog.get() == "Yes"):
+            common_util.delete_file(STORAGE.STORAGE_PATH.value, STORAGE.HISTORY_FILE.value)
+            self._history_label.grid_remove()
+            self._worklog_combobox.grid_remove()
+            self._clear_history_btn.grid_remove()
             
     #TODO: FIX LOOP EVERYTIME CALLED
     def open_worklog(self,combobox : ctk.CTkComboBox):
@@ -131,11 +147,11 @@ class WorkLog(ctk.CTkFrame):
             return
         #TODO : IF TOP LEVEL IS Aleady OPEN then check the path in this too
         date_time = common_util.date_str_to_iso(date)
-        response = self.jira_util.post_insert_worklog(issue_key,time_spend,date_time,description)
-        print(response.status_code)
-        if(response.status_code == 201):
-            if(is_insert_sheet):
-                self.insert_to_sheet(issue_key,date,time_spend,description)
+        # response = self.jira_util.post_insert_worklog(issue_key,time_spend,date_time,description)
+        # print(response.status_code)
+        if(True):
+            # if(is_insert_sheet):
+            #     self.insert_to_sheet(issue_key,date,time_spend,description)
             self.save_history_json()
             dialog_msg = self.gui_util.show_dialog("Success", "check", "Worklog has been inserted", option_1="OK", option_2="View in Jira")
             if(dialog_msg.get() == "View in Jira"):
@@ -209,7 +225,7 @@ class WorkLog(ctk.CTkFrame):
         print(history)
         common_util.save_file(STORAGE.STORAGE_PATH.value,STORAGE.HISTORY_FILE.value,history,False)
         self.worklog_history.append(json)
-        self.worklog_combobox.configure(values=[item["summary"] for item in self.worklog_history])
+        self._header_history()
 
 
 
