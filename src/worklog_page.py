@@ -62,8 +62,8 @@ class WorkLog(ctk.CTkFrame):
         if(len(self.worklog_history) > 0):
             history_dropdown = [item["summary"] for item in self.worklog_history]
             self._history_label = self.gui_util.create_normal_label(self,"Worklog History",TEXTSIZE.TEXT_X_SM,self.ROW_TOOLTIP,0,grid_args={"padx":WIDGET.PAD_X.value,"pady":WIDGET.PAD_Y.value})
-            self._worklog_combobox = ctk.CTkComboBox(self, values=history_dropdown, width=400, height=WIDGET.HEIGHT.value, command=lambda e: self.open_worklog(self._worklog_combobox),font=self.gui_util.font(TEXTSIZE.TEXT_X_SM.value,underline=True))
-            self._worklog_combobox.grid(row=self.ROW_TOOLTIP,column=1, sticky="n",padx=WIDGET.PAD_X.value,pady=WIDGET.PAD_Y.value)
+            self._worklog_combobox = ctk.CTkComboBox(self, values=history_dropdown, width=300, height=WIDGET.HEIGHT.value, command=lambda e: self.open_worklog(self._worklog_combobox),font=self.gui_util.font(TEXTSIZE.TEXT_X_SM.value,underline=True))
+            self._worklog_combobox.grid(row=self.ROW_TOOLTIP,column=1, sticky="n",padx=10,pady=WIDGET.PAD_Y.value)
             self._worklog_combobox.configure(text_color="#75add8")
             self._clear_history_btn = ctk.CTkButton(self,text="Clear History", command=self.clear_history, height=WIDGET.HEIGHT.value)
             self._clear_history_btn.grid(row=self.ROW_TOOLTIP,column=2, sticky="w",pady=WIDGET.PAD_Y.value)
@@ -82,6 +82,9 @@ class WorkLog(ctk.CTkFrame):
         for item in self.worklog_history:
             if(item["summary"] == combobox.get()):
                 combobox.bind("<Button-1>", lambda e : common_util.open_url(self.get_jira_url(item["key"])))
+                self.key_var.set(item["key"])
+                self.fetch_command(item["key"])
+                break
 
     def get_jira_url(self, key):
         return self.jira_util.full_url + "/browse/" + key
