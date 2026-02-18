@@ -4,7 +4,6 @@ import util.common_util as common_util
 from util.gui_util import GuiUtil
 from src.jira_add_account_page import ApiPage
 from src.worklog_page import WorkLog
-#TODO : CHECK expire date of API if expire date is greater remove file and show jira api page again
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
