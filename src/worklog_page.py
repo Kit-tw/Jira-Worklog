@@ -150,7 +150,7 @@ class WorkLog(ctk.CTkFrame):
             return
         date_time = common_util.date_str_to_iso(date)
         response = self.jira_util.post_insert_worklog(issue_key,time_spend,date_time,description)
-        if(True):
+        if(response.status_code != 201):
             if(is_insert_sheet):
                 self.insert_to_sheet(issue_key,date,time_spend,description)
             self.save_history_json()
