@@ -29,7 +29,7 @@ class WorkLog(ctk.CTkFrame):
         super().__init__(parent)
         self.jira_util = JiraUtil()
         self.gui_util = GuiUtil(self)
-        self.api_authorized = common_util.find(STORAGE.STORAGE_PATH.value,STORAGE.GOOGLE_API_AUTHORIZED_USER_FILE.value)
+        self.api_authorized = self.find_and_validate_api_authorized()
         self.api_credentials =  common_util.find(STORAGE.STORAGE_PATH.value,STORAGE.GOOGLE_API_CREDENTIALS_FILE.value)
         self.toplevel_google_api = None
         self.tooltip_toplevel = None
@@ -149,8 +149,9 @@ class WorkLog(ctk.CTkFrame):
             self.gui_util.show_dialog("Error", "cancel", "Date and Time field required", options="OK")
             return
         date_time = common_util.date_str_to_iso(date)
-        response = self.jira_util.post_insert_worklog(issue_key,time_spend,date_time,description)
-        if(response.status_code != 200):
+        # response = self.jira_util.post_insert_worklog(issue_key,time_spend,date_time,description)
+        # if(response.status_code != 200):
+        if(True):
             if(is_insert_sheet):
                 self.insert_to_sheet(issue_key,date,time_spend,description)
             self.save_history_json()
@@ -225,6 +226,14 @@ class WorkLog(ctk.CTkFrame):
 
 
 
+    def find_and_validate_api_authorized(self):
+        find = common_util.find(STORAGE.STORAGE_PATH.value,STORAGE.GOOGLE_API_AUTHORIZED_USER_FILE.value)
+        if(find):
+            info = common_util.read_json_file(STORAGE.STORAGE_PATH.value,STORAGE.GOOGLE_API_AUTHORIZED_USER_FILE.value)
+            if(common_util.now_greater_than_date(info["expiry"], "%Y-%m-%dT%H:%M:%SZ")):
+                common_util.delete_file(STORAGE.STORAGE_PATH.value, STORAGE.GOOGLE_API_AUTHORIZED_USER_FILE.value,False)
+                return 
+        return find
 
 
 

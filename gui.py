@@ -41,7 +41,7 @@ class App(ctk.CTk):
         
     def validate_expire_date(self):
         info = common_util.read_json_file(STORAGE.STORAGE_PATH.value, STORAGE.TOKEN_FILE.value)
-        if(common_util.now_greater_than_date(info["expire_date"])):
+        if(common_util.now_greater_than_date(info["expire_date"], "%d/%m/%Y")):
             dialog_msg = GuiUtil().show_dialog("Info", "check", "Jira API token has expired", option_1="OK")
             if(dialog_msg.get() == "OK"):
                 return False
