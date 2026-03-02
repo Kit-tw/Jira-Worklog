@@ -77,6 +77,7 @@ class WorkLog(ctk.CTkFrame):
             self._clear_history_btn.grid_remove()
             
     #TODO: FIX LOOP EVERYTIME CALLED
+    #TODO : fix fetch command called just set the value in issueName no need to send API to check again
     def open_worklog(self,combobox : ctk.CTkComboBox):
         print(combobox.get())
         for item in self.worklog_history:
@@ -131,7 +132,7 @@ class WorkLog(ctk.CTkFrame):
         self.confirm_btn = ctk.CTkButton(self, text="Confirm & Log Work", height=WIDGET.HEIGHT.value, command=self.insert_worklog)
         self.confirm_btn.grid(row=self.ROW_FOOTER, column=0, columnspan=1, sticky='w', padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
 
-
+#TODO : USE THREADING FOR THIS FUNCTION
     def insert_worklog(self) -> None:
         time_spend = self.time_spend_entry.get()
         date = self.date_var.get()
@@ -149,9 +150,8 @@ class WorkLog(ctk.CTkFrame):
             self.gui_util.show_dialog("Error", "cancel", "Date and Time field required", options="OK")
             return
         date_time = common_util.date_str_to_iso(date)
-        # response = self.jira_util.post_insert_worklog(issue_key,time_spend,date_time,description)
-        # if(response.status_code != 200):
-        if(True):
+        response = self.jira_util.post_insert_worklog(issue_key,time_spend,date_time,description)
+        if(response.status_code != 200):
             if(is_insert_sheet):
                 self.insert_to_sheet(issue_key,date,time_spend,description)
             self.save_history_json()
@@ -228,11 +228,11 @@ class WorkLog(ctk.CTkFrame):
 
     def find_and_validate_api_authorized(self):
         find = common_util.find(STORAGE.STORAGE_PATH.value,STORAGE.GOOGLE_API_AUTHORIZED_USER_FILE.value)
-        if(find):
-            info = common_util.read_json_file(STORAGE.STORAGE_PATH.value,STORAGE.GOOGLE_API_AUTHORIZED_USER_FILE.value)
-            if(common_util.now_greater_than_date(info["expiry"], "%Y-%m-%dT%H:%M:%SZ")):
-                common_util.delete_file(STORAGE.STORAGE_PATH.value, STORAGE.GOOGLE_API_AUTHORIZED_USER_FILE.value,False)
-                return 
+        # if(find):
+            # info = common_util.read_json_file(STORAGE.STORAGE_PATH.value,STORAGE.GOOGLE_API_AUTHORIZED_USER_FILE.value)
+            # if(common_util.now_greater_than_date(info["expiry"], "%Y-%m-%dT%H:%M:%SZ")):
+            #     common_util.delete_file(STORAGE.STORAGE_PATH.value, STORAGE.GOOGLE_API_AUTHORIZED_USER_FILE.value,False)
+            #     return 
         return find
 
 
