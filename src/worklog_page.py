@@ -132,7 +132,7 @@ class WorkLog(ctk.CTkFrame):
         self.confirm_btn = ctk.CTkButton(self, text="Confirm & Log Work", height=WIDGET.HEIGHT.value, command=self.insert_worklog)
         self.confirm_btn.grid(row=self.ROW_FOOTER, column=0, columnspan=1, sticky='w', padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
 
-#TODO : USE THREADING FOR THIS FUNCTION
+#TODO : USE THREADING/ASYNC FOR THIS FUNCTION
     def insert_worklog(self) -> None:
         time_spend = self.time_spend_entry.get()
         date = self.date_var.get()
