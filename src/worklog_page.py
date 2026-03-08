@@ -1,4 +1,6 @@
 import customtkinter as ctk
+import asyncio
+import threading
 from util.jira_util import JiraUtil
 from util.git_util import GitUtil
 from util.gui_util import GuiUtil
@@ -10,7 +12,7 @@ from constant.Enum import (TEXTSIZE,WIDGET,REGEX,STORAGE)
 from ctkdateentry import CTkDateEntry, CTkStringVar
 import re
 from PIL import Image
-#TODO : FIX UI / grid configrue
+
 class WorkLog(ctk.CTkFrame):
     ROW_TOOLTIP = 0
     ROW_INPUT = 1
@@ -24,8 +26,7 @@ class WorkLog(ctk.CTkFrame):
     PLACEHOLDER_TIME = "Time spend e.g. 3h, 20m, 16s"
     PLACEHOLDER_DESCRIPTION = "Description"
     
-    def __init__(self,
-                  parent : any):
+    def __init__(self, parent : any):
         super().__init__(parent)
         self.jira_util = JiraUtil()
         self.gui_util = GuiUtil(self)
@@ -45,18 +46,34 @@ class WorkLog(ctk.CTkFrame):
         self.grid_columnconfigure(0 , weight=1)
         self.grid_columnconfigure((1,2,3) , weight=2)
         
+    def run_in_background(self, coroutine, success_callback=None, error_callback=None):
+        def thread_target():
+            try:
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                result = loop.run_until_complete(coroutine)
+                if success_callback:
+                    self.after(0, lambda: success_callback(result))
+            except Exception as e:
+                if error_callback:
+                    self.after(0, lambda: error_callback(str(e)))
+                else:
+                    self.after(0, lambda: self.gui_util.show_dialog("Error", "cancel", str(e), options="OK"))
+            finally:
+                loop.close()
+        threading.Thread(target=thread_target, daemon=True).start()
 
     def header_frame(self):
         self._header_tooltip()
         self._header_history()
 
     def _header_tooltip(self):
-            img_path = common_util.find(STORAGE.IMAGE_PATH.value,STORAGE.TOOLTIP_IMAGE.value)
-            img = ctk.CTkImage(light_image=Image.open(img_path),dark_image=Image.open(img_path),size=(30, 30))
-            label = ctk.CTkLabel(self, image=img, text="", cursor="hand2")
-            label.image = img
-            label.bind("<Button-1>", lambda e: self.open_tooltip_toplevel())
-            label.grid(row=self.ROW_TOOLTIP,column=self.MAX_COL_SPAN, sticky="nesw", pady=WIDGET.PAD_Y.value)
+        img_path = common_util.find(STORAGE.IMAGE_PATH.value,STORAGE.TOOLTIP_IMAGE.value)
+        img = ctk.CTkImage(light_image=Image.open(img_path),dark_image=Image.open(img_path),size=(30, 30))
+        label = ctk.CTkLabel(self, image=img, text="", cursor="hand2")
+        label.image = img
+        label.bind("<Button-1>", lambda e: self.open_tooltip_toplevel())
+        label.grid(row=self.ROW_TOOLTIP,column=self.MAX_COL_SPAN, sticky="nesw", pady=WIDGET.PAD_Y.value)
 
     def _header_history(self):
         if(len(self.worklog_history) > 0):
@@ -76,8 +93,6 @@ class WorkLog(ctk.CTkFrame):
             self._worklog_combobox.grid_remove()
             self._clear_history_btn.grid_remove()
             
-    #TODO: FIX LOOP EVERYTIME CALLED
-    #TODO : fix fetch command called just set the value in issueName no need to send API to check again
     def open_worklog(self,combobox : ctk.CTkComboBox):
         print(combobox.get())
         for item in self.worklog_history:
@@ -92,17 +107,29 @@ class WorkLog(ctk.CTkFrame):
         
     def input_frame(self):
         self.jira_url_entry = self.gui_util.create_entry_with_placeholder(self,self.PLACEHOLDER_URL,self.key_var,self.ROW_INPUT,0,entry_args={"width":WIDGET.WIDTH.value,"height":WIDGET.HEIGHT.value},grid_args={"sticky":"ew","padx":WIDGET.PAD_X.value,"pady":WIDGET.PAD_Y.value,"columnspan":self.MAX_COL_SPAN})
-        fetch_btn = ctk.CTkButton(self,text="fetch",command=lambda : self.fetch_command(self.jira_url_entry.get()), height=WIDGET.HEIGHT.value)
-        fetch_btn.grid(row=self.ROW_INPUT,column=3, sticky='ew',padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
+        self.fetch_btn = ctk.CTkButton(self,text="fetch",command=lambda : self.fetch_command(self.jira_url_entry.get()), height=WIDGET.HEIGHT.value)
+        self.fetch_btn.grid(row=self.ROW_INPUT,column=3, sticky='ew',padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
 
     def fetch_command(self, key:str):
-        self.issue_name =  self.jira_util.fetch_issue(key)
-        if self.issue_name:
+        if not key:
+            return
+            
+        self.fetch_btn.configure(state="disabled", text="fetching...")
+        self.issue_label.configure(text="Fetching issue...", cursor="arrow")
+
+        def on_success(issue_name):
+            self.fetch_btn.configure(state="normal", text="fetch")
+            self.issue_name = issue_name
             self.issue_label.configure(text="Issue Name : " + self.issue_name,cursor="hand2")
             url = self.jira_util.full_url + "/browse/" + key
             self.issue_label.bind("<Button-1>", lambda e : common_util.open_url(url))
-            return True
-        return False
+
+        def on_error(err):
+            self.fetch_btn.configure(state="normal", text="fetch")
+            self.issue_label.configure(text="", cursor="arrow")
+            self.gui_util.show_dialog("Error", "cancel", err, options="OK")
+            
+        self.run_in_background(self.jira_util.fetch_issue(key), on_success, on_error)
 
     def body(self):
         self.issue_label = self.gui_util.create_normal_label(self,"",TEXTSIZE.TEXT_X_SM,self.ROW_ISSUE,0,label_args={"text_color":"#75add8"},grid_args={"sticky":"nsew","columnspan":self.MAX_COL_SPAN})
@@ -112,7 +139,6 @@ class WorkLog(ctk.CTkFrame):
         self.start_date_entry = CTkDateEntry(self, variable=self.date_var, height=WIDGET.HEIGHT.value)
         self.start_date_entry.grid(row=self.ROW_TIME, column=1, sticky='ew', padx=WIDGET.PAD_X.value)
       
-
         self.time_spend_entry = self.gui_util.create_entry_with_placeholder(self,self.PLACEHOLDER_TIME,self.time_var,self.ROW_TIME,2,entry_args={"height":WIDGET.HEIGHT.value},grid_args={"sticky":"ew","padx":WIDGET.PAD_X.value,"pady":WIDGET.PAD_Y.value,"columnspan":self.MAX_COL_SPAN})
         
         self.start_label = self.gui_util.create_normal_label(self,"Description",TEXTSIZE.TEXT_SM,self.ROW_DATE,0,grid_args={"padx":WIDGET.PAD_X.value})
@@ -132,7 +158,6 @@ class WorkLog(ctk.CTkFrame):
         self.confirm_btn = ctk.CTkButton(self, text="Confirm & Log Work", height=WIDGET.HEIGHT.value, command=self.insert_worklog)
         self.confirm_btn.grid(row=self.ROW_FOOTER, column=0, columnspan=1, sticky='w', padx=WIDGET.PAD_X.value, pady=WIDGET.PAD_Y.value)
 
-#TODO : USE THREADING/ASYNC FOR THIS FUNCTION
     def insert_worklog(self) -> None:
         time_spend = self.time_spend_entry.get()
         date = self.date_var.get()
@@ -143,21 +168,34 @@ class WorkLog(ctk.CTkFrame):
         if(not issue_key):
             self.gui_util.show_dialog("Error", "cancel", "Issue Key is not found", options="OK")
             return
-        if(not self.fetch_command(issue_key)):
-            self.gui_util.show_dialog("Error", "cancel", "Can't find issue by key", options="OK")
-            return
         if(not time_spend or not re.match(REGEX.DATE.value,date)):
             self.gui_util.show_dialog("Error", "cancel", "Date and Time field required", options="OK")
             return
+            
         date_time = common_util.date_str_to_iso(date)
-        response = self.jira_util.post_insert_worklog(issue_key,time_spend,date_time,description)
-        if(response.status_code != 200):
-            if(is_insert_sheet):
+
+        self.confirm_btn.configure(state="disabled", text="Processing...")
+
+        async def process_insert():
+            issue_name = await self.jira_util.fetch_issue(issue_key)
+            await self.jira_util.post_insert_worklog(issue_key,time_spend,date_time,description)
+            return issue_name
+
+        def on_success(issue_name):
+            self.issue_name = issue_name
+            self.confirm_btn.configure(state="normal", text="Confirm & Log Work")
+            if is_insert_sheet:
                 self.insert_to_sheet(issue_key,date,time_spend,description)
             self.save_history_json()
             dialog_msg = self.gui_util.show_dialog("Success", "check", "Worklog has been inserted", option_1="OK", option_2="View in Jira")
             if(dialog_msg.get() == "View in Jira"):
                 common_util.open_url(self.get_jira_url(issue_key))
+
+        def on_error(err):
+            self.confirm_btn.configure(state="normal", text="Confirm & Log Work")
+            self.gui_util.show_dialog("Error", "cancel", str(err), options="OK")
+
+        self.run_in_background(process_insert(), on_success, on_error)
 
     def insert_to_sheet(self,
                         issue_key : str,
@@ -169,7 +207,10 @@ class WorkLog(ctk.CTkFrame):
             if(dialog_msg.get() == "Add"):
                 self.open_googleapi_toplevel()
             return
-        SheetsUtil(key=issue_key,date=date,time=time_spend,description=description)
+        try:
+            SheetsUtil(key=issue_key,date=date,time=time_spend,description=description)
+        except Exception as e:
+            self.gui_util.show_dialog("Error", "cancel", str(e), options="OK")
     
     def checkbox_callback(self):
         checkbox_value = self.insert_sheet.get()
@@ -192,15 +233,29 @@ class WorkLog(ctk.CTkFrame):
         return
     
     def git_insert_entry(self):
+        self.automate_options.set("Processing...")
         git_util = GitUtil()
-        key = git_util.get_issueName()
-        if(key and self.fetch_command(key)):
-           #TODO : add feature like the commit message and user can choose which commit to diff from previous log then auto fill description with commit message and time spend with time between 2 commit and date with commit date
-           obj = git_util.get_git_detail()
-           self.key_var.set(key)
-           self.date_var.set(obj["date"])
-           self.time_var.set(obj["time_spend"])
-           self.description_var.set(obj["description"])
+
+        async def process_git():
+            key = git_util.get_issueName()
+            await self.jira_util.fetch_issue(key)
+            obj = git_util.get_git_detail()
+            return key, obj
+            
+        def on_success(result):
+            self.automate_options.set("Git")
+            key, obj = result
+            self.key_var.set(key)
+            self.date_var.set(obj["date"])
+            self.time_var.set(obj["time_spend"])
+            self.description_var.set(obj["description"])
+            self.fetch_command(key)
+            
+        def on_error(err):
+            self.automate_options.set("Git")
+            self.gui_util.show_dialog("Error", "cancel", str(err), options="OK")
+
+        self.run_in_background(process_git(), on_success, on_error)
 
 
     def open_tooltip_toplevel(self):
@@ -208,7 +263,6 @@ class WorkLog(ctk.CTkFrame):
             self.tooltip_toplevel = ToolTip(self) 
         else:
             self.tooltip_toplevel.focus() 
-
 
     def save_history_json(self):
         if(len(self.worklog_history) > 0):
@@ -224,20 +278,6 @@ class WorkLog(ctk.CTkFrame):
         common_util.save_file(STORAGE.STORAGE_PATH.value,STORAGE.HISTORY_FILE.value,self.worklog_history,False)
         self._header_history()
 
-
-
     def find_and_validate_api_authorized(self):
         find = common_util.find(STORAGE.STORAGE_PATH.value,STORAGE.GOOGLE_API_AUTHORIZED_USER_FILE.value)
-        # if(find):
-            # info = common_util.read_json_file(STORAGE.STORAGE_PATH.value,STORAGE.GOOGLE_API_AUTHORIZED_USER_FILE.value)
-            # if(common_util.now_greater_than_date(info["expiry"], "%Y-%m-%dT%H:%M:%SZ")):
-            #     common_util.delete_file(STORAGE.STORAGE_PATH.value, STORAGE.GOOGLE_API_AUTHORIZED_USER_FILE.value,False)
-            #     return 
         return find
-
-
-
-
-            
-
-    

@@ -1,53 +1,48 @@
-import requests
-from requests.auth import HTTPBasicAuth
+import aiohttp
 import util.common_util as common_util
 from constant.Enum import (STORAGE, URL)
-from requests import Response
 import json
-from util.gui_util import GuiUtil
+
 class JiraUtil:
     def __init__(self):
-        # TODO: FIX ERROR DIALOG HANDLELING
         self.jira_data = common_util.read_json_file(STORAGE.STORAGE_PATH.value,STORAGE.TOKEN_FILE.value)
         self.mail = self.jira_data["jira_email"]
         self.api_token  = self.jira_data["jira_api"]
         self.prefix_url = self.jira_data["jira_prefix"]
-        self.gui = GuiUtil(self)
         self.full_url = self.get_jira_site(self.prefix_url)
 
-    def fetch_issue(self,key):
+    async def fetch_issue(self,key):
         json_path = common_util.find(STORAGE.STORAGE_PATH.value, STORAGE.TOKEN_FILE.value)
-        if(not json_path):
-            self.gui.show_dialog("Error", "cancel", f"json api storage file at {json_path} is not exist", options="OK")
-            return 
-        response = self.get_jira_issue(key)
-        if(response.status_code.__ne__(200)):
-            self.gui.show_dialog("Error", "cancel", f"Fetch issue #{key} error : {response.text}", options="OK")
-            print("response GET issue error : " + response.text)
-            return
-        return json.loads(response.text)["fields"]["summary"]
+        if not json_path:
+            raise Exception(f"JSON api storage file at {json_path} does not exist.")
+        
+        status, text = await self.get_jira_issue(key)
+        if status != 200:
+            raise Exception(f"Fetch issue #{key} error: {text}")
+        return json.loads(text)["fields"]["summary"]
         
 
-    def get_jira_issue(self,
-                    key : str
-                    ) -> Response:
+    async def get_jira_issue(self, key: str) -> tuple[int, str]:
         path = URL.JIRA_ISSUE_PATH.value
         url = self.full_url + path + key
-        auth = HTTPBasicAuth(self.mail,self.api_token)
+        auth = aiohttp.BasicAuth(self.mail, self.api_token)
         headers = {
-        "Accept": "application/json",
+            "Accept": "application/json",
         }
-        return requests.request("GET",url,headers=headers,auth=auth)
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=headers, auth=auth) as response:
+                text = await response.text()
+                return response.status, text
 
-    def post_insert_worklog(self,
+    async def post_insert_worklog(self,
                             issue_key : str,
                             time_spend :str,
                             date : str,
                             description : str | None
-                            ):
+                            ) -> tuple[int, str]:
         path = URL.JIRA_POST_INSERT_WORKLOG_PATH(issue_key)
         url = self.full_url + path
-        auth = HTTPBasicAuth(self.mail,self.api_token)
+        auth = aiohttp.BasicAuth(self.mail, self.api_token)
         headers = {
             "Accept" : "application/json",
             "Content-Type": "application/json"
@@ -69,8 +64,10 @@ class JiraUtil:
             "started":date,
             "timeSpent":time_spend
         })
-        return requests.request("POST",url,data=payload,headers=headers,auth=auth)
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, data=payload, headers=headers, auth=auth) as response:
+                text = await response.text()
+                return response.status, text
     
     def get_jira_site(self,prefix) -> str:
         return "https://" + prefix + ".atlassian.net"
-    

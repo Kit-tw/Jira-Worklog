@@ -1,7 +1,6 @@
 import gspread
 from datetime import datetime
 import util.common_util as common_util
-from util.gui_util import GuiUtil
 from util.jira_util import JiraUtil
 from constant.Enum import (STORAGE,URL,REGEX)
 import re
@@ -36,9 +35,7 @@ class SheetsUtil:
     
     def get_sheet_id(self):
         if(not common_util.find(STORAGE.STORAGE_PATH.value,STORAGE.INFORMATION_FILE.value)):
-            dialog = GuiUtil().show_dialog("Error", "cancel", f"You Do not have spreadsheets template", option_1="Add", option_2="OK")
-            if(dialog.get() == "Add"):
-                return self.copy_sheets()
+            raise Exception("You do not have a spreadsheets template. Please add one.")
         info = common_util.read_json_file(STORAGE.STORAGE_PATH.value,STORAGE.INFORMATION_FILE.value)
         return info["spreadsheetId"]
 
