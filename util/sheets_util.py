@@ -24,7 +24,7 @@ class SheetsUtil:
         self.worksheet = self.gc.open_by_key(self.sheet_id)
         self.jira_issue_add()
         self.worklog_add()
-
+#Error handle : Token has been expired or revoked
     def authenticate(self):
         credentials_path = f"{STORAGE.STORAGE_PATH.value}/{STORAGE.GOOGLE_API_CREDENTIALS_FILE.value}"
         authorized_path = f"{STORAGE.STORAGE_PATH.value}/{STORAGE.GOOGLE_API_AUTHORIZED_USER_FILE.value}"

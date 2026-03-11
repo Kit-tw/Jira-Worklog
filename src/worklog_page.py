@@ -93,6 +93,7 @@ class WorkLog(ctk.CTkFrame):
             self._worklog_combobox.grid_remove()
             self._clear_history_btn.grid_remove()
             
+#Bug : when select multiple dropdown each time the browser open the all url that have been selected, not only the current one.
     def open_worklog(self,combobox : ctk.CTkComboBox):
         print(combobox.get())
         for item in self.worklog_history:
