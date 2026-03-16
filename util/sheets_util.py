@@ -4,7 +4,8 @@ import util.common_util as common_util
 from util.jira_util import JiraUtil
 from constant.Enum import (STORAGE,URL,REGEX)
 import re
-#TODO : ADD HANDLE ERROR
+import os
+from google.auth.exceptions import RefreshError
 class SheetsUtil:
     def __init__(self,
                  key : str,
@@ -19,15 +20,24 @@ class SheetsUtil:
         self.time = time
         self.description = description
         self.dt = datetime.strptime(self.date, "%d/%m/%Y")
-        self.gc = self.authenticate()
-        self.sheet_id = self.get_sheet_id()
-        self.worksheet = self.gc.open_by_key(self.sheet_id)
+        try:
+            self.gc = self.authenticate()
+            self.sheet_id = self.get_sheet_id()
+            self.worksheet = self.gc.open_by_key(self.sheet_id)
+        except RefreshError:
+            self.gc = self.authenticate(force_reauth=True)
+            self.sheet_id = self.get_sheet_id()
+            self.worksheet = self.gc.open_by_key(self.sheet_id)
+            
         self.jira_issue_add()
         self.worklog_add()
-#Error handle : Token has been expired or revoked
-    def authenticate(self):
+
+    def authenticate(self, force_reauth=False):
         credentials_path = f"{STORAGE.STORAGE_PATH.value}/{STORAGE.GOOGLE_API_CREDENTIALS_FILE.value}"
         authorized_path = f"{STORAGE.STORAGE_PATH.value}/{STORAGE.GOOGLE_API_AUTHORIZED_USER_FILE.value}"
+        
+        if force_reauth and os.path.exists(authorized_path):
+            os.remove(authorized_path)
         return gspread.oauth(
             credentials_filename=credentials_path,
             authorized_user_filename=authorized_path

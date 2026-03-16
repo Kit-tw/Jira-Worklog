@@ -4,7 +4,7 @@ import util.common_util as common_util
 from util.gui_util import GuiUtil
 from util.jira_util import JiraUtil
 import re
-# TODO : REFACTOR , made it easier to read.
+
 class ApiPage(ctk.CTkFrame):
         def __init__(
                       self,
@@ -67,20 +67,20 @@ class ApiPage(ctk.CTkFrame):
                 if(not email or not api or not url or not expire_date):
                         self.gui_util.show_dialog("Error", "cancel", "Please enter all input field.",options="OK")
                         return
-                else:
-                        prefix = self.get_prefix(url)
-                        data = {
-                                "jira_email" : email,
-                                "jira_api" : api,
-                                "jira_prefix" : prefix,
-                                "expire_date" : expire_date
-                        }
-                        response = common_util.get_user(email,api,prefix)
-                        if(response.status_code != 200):
-                                self.gui_util.show_dialog("Error", "cancel", "Can't fetch user from your input.",options="OK")
-                                return
-                        common_util.save_file(STORAGE.STORAGE_PATH.value,STORAGE.TOKEN_FILE.value,data)
-                        self.after(0, self.master.show_worklog_page)
+                
+                prefix = self.get_prefix(url)
+                data = {
+                        "jira_email" : email,
+                        "jira_api" : api,
+                        "jira_prefix" : prefix,
+                        "expire_date" : expire_date
+                }
+                response = common_util.get_user(email,api,prefix)
+                if(response.status_code != 200):
+                        self.gui_util.show_dialog("Error", "cancel", "Can't fetch user from your input.",options="OK")
+                        return
+                common_util.save_file(STORAGE.STORAGE_PATH.value,STORAGE.TOKEN_FILE.value,data)
+                self.after(0, self.master.show_worklog_page)
         def get_prefix(self, url):
                 pattern = r'^(?:https?:\/?\/?)?([a-zA-Z0-9-]+)(?:\.atlassian\.net)?\/?$'
                 match = re.match(pattern, url)

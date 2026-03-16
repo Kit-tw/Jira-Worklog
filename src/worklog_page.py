@@ -55,10 +55,8 @@ class WorkLog(ctk.CTkFrame):
                 if success_callback:
                     self.after(0, lambda: success_callback(result))
             except Exception as e:
-                if error_callback:
-                    self.after(0, lambda: error_callback(str(e)))
-                else:
-                    self.after(0, lambda: self.gui_util.show_dialog("Error", "cancel", str(e), options="OK"))
+                print("Debug : ", str(e))
+                self.after(0, lambda: self.gui_util.show_dialog("Error", "cancel", str(e), options="OK"))
             finally:
                 loop.close()
         threading.Thread(target=thread_target, daemon=True).start()
@@ -93,12 +91,14 @@ class WorkLog(ctk.CTkFrame):
             self._worklog_combobox.grid_remove()
             self._clear_history_btn.grid_remove()
             
-#Bug : when select multiple dropdown each time the browser open the all url that have been selected, not only the current one.
     def open_worklog(self,combobox : ctk.CTkComboBox):
         print(combobox.get())
         for item in self.worklog_history:
             if(item["summary"] == combobox.get()):
-                combobox.bind("<Button-1>", lambda e : common_util.open_url(self.get_jira_url(item["key"])))
+                self._current_history_url = self.get_jira_url(item["key"])
+                if not getattr(self, '_history_bound', False):
+                    combobox.bind("<Button-1>", lambda e: common_util.open_url(self._current_history_url))
+                    self._history_bound = True
                 self.key_var.set(item["key"])
                 self.fetch_command(item["key"])
                 break
