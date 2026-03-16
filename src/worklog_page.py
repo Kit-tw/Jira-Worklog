@@ -117,23 +117,26 @@ class WorkLog(ctk.CTkFrame):
             
         self.fetch_btn.configure(state="disabled", text="fetching...")
         self.issue_label.configure(text="Fetching issue...", cursor="arrow")
+        self.current_issue_url = None
 
         def on_success(issue_name):
             self.fetch_btn.configure(state="normal", text="fetch")
             self.issue_name = issue_name
             self.issue_label.configure(text="Issue Name : " + self.issue_name,cursor="hand2")
-            url = self.jira_util.full_url + "/browse/" + key
-            self.issue_label.bind("<Button-1>", lambda e : common_util.open_url(url))
+            self.current_issue_url = self.jira_util.full_url + "/browse/" + key
 
         def on_error(err):
             self.fetch_btn.configure(state="normal", text="fetch")
             self.issue_label.configure(text="", cursor="arrow")
+            self.current_issue_url = None
             self.gui_util.show_dialog("Error", "cancel", err, options="OK")
             
         self.run_in_background(self.jira_util.fetch_issue(key), on_success, on_error)
 
     def body(self):
         self.issue_label = self.gui_util.create_normal_label(self,"",TEXTSIZE.TEXT_X_SM,self.ROW_ISSUE,0,label_args={"text_color":"#75add8"},grid_args={"sticky":"nsew","columnspan":self.MAX_COL_SPAN})
+        self.current_issue_url = None
+        self.issue_label.bind("<Button-1>", lambda e: common_util.open_url(self.current_issue_url) if self.current_issue_url else None)
 
         self.time_label = self.gui_util.create_normal_label(self,"Date & Time",TEXTSIZE.TEXT_SM,self.ROW_TIME,0,grid_args={"padx":WIDGET.PAD_X.value,"pady":WIDGET.PAD_Y.value})
 
