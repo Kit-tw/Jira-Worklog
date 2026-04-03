@@ -45,7 +45,8 @@ class WorkLog(ctk.CTkFrame):
         self.body()
         self.grid_columnconfigure(0 , weight=1)
         self.grid_columnconfigure((1,2,3) , weight=2)
-        
+    #TOOD: SOME CASE ERROR it not log / show error on dialog
+    #BUG : SHOULD TRIM the input key, some time user copy paste with space and cause error, SHOULD SHOW ERROR DIALOG WHEN FETCH ISSUE FAILED, SOME CASE WHEN INSERT WORKLOG FAILED IT NOT SHOW ERROR DIALOG
     def run_in_background(self, coroutine, success_callback=None, error_callback=None):
         def thread_target():
             try:
