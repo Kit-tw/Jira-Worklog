@@ -55,7 +55,7 @@ class SheetsUtil:
         common_util.save_file(STORAGE.STORAGE_PATH.value,STORAGE.INFORMATION_FILE.value,data)
         self.home_add()
         return new_spreadsheet.id
-
+    #TODO : when token revoke to re-insert home data
     def home_add(self):
         home_worksheet = self.worksheet.worksheet(self.HOME_SHEETNAME)
         jira_util = JiraUtil() 

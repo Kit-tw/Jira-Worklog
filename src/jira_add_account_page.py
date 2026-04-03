@@ -58,7 +58,7 @@ class ApiPage(ctk.CTkFrame):
         def submit_button(self) -> None :
                 button = ctk.CTkButton(self,text="Confirm",command=self.store_api)
                 button.grid(row=2,column=0,sticky="nsew", padx = 100, pady = 10)
-
+        #TODO : IF CASE REVOKE TOKEN TO RE-INPUT API, SHOULD DELETE ALL FILE IN STORAGE FOLDER, SHOULD CHECK SHEET_UTIL IF FOUND THEN CALL home_add
         def store_api(self) -> None :
                 email = self.email_entry.get()
                 api = self.api_token_entry.get()
