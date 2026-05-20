@@ -40,12 +40,28 @@ class GitUtil:
             
             time_spent = before_date - current_date
             time_in_s = time_spent.total_seconds()
-            hours = divmod(time_in_s, 3600)[0]
-            working_hours = 8 if hours > 8 else max(1, hours)
+            
+            total_minutes = int(time_in_s // 60)
+            if total_minutes <= 0:
+                total_minutes = 1
+                
+            hours = total_minutes // 60
+            minutes = total_minutes % 60
+            
+            if hours >= 8:
+                time_spend_str = "8h"
+            else:
+                parts = []
+                if hours > 0:
+                    parts.append(f"{hours}h")
+                if minutes > 0:
+                    parts.append(f"{minutes}m")
+                time_spend_str = " ".join(parts)
             
             obj = {
                 "date" : f"{before_date.day:02d}/{before_date.month:02d}/{before_date.year}",
-                "time_spend" : f"{int(working_hours)}h" ,
+                "time_spend" : time_spend_str,
+                "time_spend_minutes" : 480 if hours >= 8 else total_minutes,
                 "description" : message[-1]
             }
             return obj

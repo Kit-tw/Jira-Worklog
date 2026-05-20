@@ -119,3 +119,14 @@ def now_greater_than_date(date_string , format):
     now = datetime.now()
     input_date = datetime.strptime(date_string, format)
     return now > input_date
+
+def get_min_time_spend() -> int:
+    try:
+        info_path = os.path.join(STORAGE.STORAGE_PATH.value, STORAGE.INFORMATION_FILE.value)
+        if os.path.exists(info_path):
+            with open(info_path, 'r') as f:
+                data = json.load(f)
+                return int(data.get("min_time_spend", 15))
+    except Exception:
+        pass
+    return 15
