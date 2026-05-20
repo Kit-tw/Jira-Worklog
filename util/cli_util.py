@@ -57,6 +57,19 @@ async def run_cli_git():
         default_date = git_details.get("date", default_date)
         default_time = git_details.get("time_spend", default_time)
         default_comment = git_details.get("description", default_comment)
+        
+        time_spend_mins = git_details.get("time_spend_minutes", 0)
+        min_time = common_util.get_min_time_spend()
+        if time_spend_mins < min_time:
+            print(" ------------------------------ Note: Detected time spent from git is less than the minimum threshold. ------------------------------")
+            confirm_time = input(f"Are you sure to add [{default_time}] to worklog? (y/n) [y]: ").strip().lower()
+            if confirm_time in ('n', 'no'):
+                while True:
+                    user_inserted_time = input("Enter time spent (e.g. 3h, 20m): ").strip()
+                    if user_inserted_time:
+                        default_time = user_inserted_time
+                        break
+                    print("Error: Time spent cannot be empty.")
     except Exception as e:
         print(f"Note: Could not calculate git details from reflog ({e}). Using defaults.")
 

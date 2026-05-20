@@ -252,9 +252,34 @@ class WorkLog(ctk.CTkFrame):
             key, obj = result
             self.key_var.set(key)
             self.date_var.set(obj["date"])
-            self.time_var.set(obj["time_spend"])
             self.description_var.set(obj["description"])
             self.fetch_command(key)
+            
+            time_spend_mins = obj.get("time_spend_minutes", 0)
+            min_time = common_util.get_min_time_spend()
+            time_spend_str = obj.get("time_spend", "")
+            if time_spend_mins < min_time:
+                dialog_msg = self.gui_util.show_dialog(
+                    "Confirm",
+                    "warning",
+                    f"Are you sure to add {time_spend_str} to worklog?",
+                    option_1="Yes",
+                    option_2="No"
+                )
+                if dialog_msg.get() == "Yes":
+                    self.time_var.set(time_spend_str)
+                else:
+                    dialog = ctk.CTkInputDialog(
+                        text="Enter time spent (e.g. 15m, 1h):",
+                        title="Time Spent"
+                    )
+                    user_input = dialog.get_input()
+                    if user_input:
+                        self.time_var.set(user_input)
+                    else:
+                        self.time_var.set(self.PLACEHOLDER_TIME)
+            else:
+                self.time_var.set(time_spend_str)
             
         def on_error(err):
             self.automate_options.set("Git")
