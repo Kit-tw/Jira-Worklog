@@ -1,4 +1,5 @@
 import os 
+import re
 from git import Repo
 from util.jira_util import JiraUtil
 from datetime import datetime, timedelta
@@ -13,7 +14,11 @@ class GitUtil:
     
     def get_issueName(self) -> str :
         try:
-            return Repo(self.cur_dir).active_branch.name
+            branch_name = Repo(self.cur_dir).active_branch.name
+            match = re.search(r'([A-Za-z][A-Za-z0-9]+-[0-9]+)', branch_name)
+            if match:
+                return match.group(1).upper()
+            return branch_name
         except Exception as e:
             raise Exception("Current directory does not have a valid .git repository.")
 

@@ -1,3 +1,11 @@
+import sys
+import asyncio
+
+if "-git" in sys.argv:
+    from util.cli_util import run_cli_git
+    asyncio.run(run_cli_git())
+    sys.exit(0)
+
 import customtkinter as ctk
 from constant.Enum import (STORAGE) 
 import util.common_util as common_util
