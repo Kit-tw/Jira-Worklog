@@ -1,9 +1,10 @@
 import sys
 import asyncio
 
-if "-git" in sys.argv:
-    from util.cli_util import run_cli_git
-    asyncio.run(run_cli_git())
+cli_flags = {"-ga", "-gm", "-m"}
+if any(flag in sys.argv for flag in cli_flags):
+    from util.cli_util import JiraWorklogCLI
+    asyncio.run(JiraWorklogCLI().run())
     sys.exit(0)
 
 import customtkinter as ctk
