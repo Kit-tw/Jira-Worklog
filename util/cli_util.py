@@ -61,8 +61,14 @@ async def run_cli_git():
         time_spend_mins = git_details.get("time_spend_minutes", 0)
         min_time = common_util.get_min_time_spend()
         if time_spend_mins < min_time:
-            print(" ------------------------------ Note: Detected time spent from git is less than the minimum threshold. ------------------------------")
-            confirm_time = input(f"Are you sure to add [{default_time}] to worklog? (y/n) [y]: ").strip().lower()
+            warning_msg = (
+                "\033[1;33m"
+                "================================================================================\n"
+                "[WARNING] Calculated time spent from git is less than the minimum threshold.\n"
+                "================================================================================\033[0m"
+            )
+            print(warning_msg)
+            confirm_time = input(f"\033[1;33mAre you sure to add [ {default_time} ] to worklog? (y/n) [y]: \033[0m").strip().lower()
             if confirm_time in ('n', 'no'):
                 while True:
                     user_inserted_time = input("Enter time spent (e.g. 3h, 20m): ").strip()
