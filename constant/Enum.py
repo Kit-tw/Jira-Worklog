@@ -1,21 +1,35 @@
 from enum import Enum
-import os 
 from pathlib import Path
+
+
+def _storage_base() -> str:
+    return str(Path.home() / "Documents")
+
+
+def _project_root() -> str:
+    return str(Path(__file__).parent.parent)
+
+
+_WORKLOG_DIR = "Worklog"
+_STORAGE = f"{_storage_base()}/{_WORKLOG_DIR}"
+_ROOT = _project_root()
+
+
 class URL(Enum):
-    def JIRA_POST_INSERT_WORKLOG_PATH(key :str) -> str :
-        return f"/rest/api/3/issue/{key}/worklog"
     JIRA_GET_API_URL = "https://id.atlassian.com/manage-profile/security/api-tokens"
     GSPREAD_GOOGLE_API_DOC = "https://docs.gspread.org/en/latest/oauth2.html#for-end-users-using-oauth-client-id"
     GOOGLE_DEVELOPER_CONSOLE = "https://console.cloud.google.com/apis/dashboard"
     JIRA_ISSUE_PATH = "/rest/api/3/issue/"
     SPREAD_SHEET_ID = "1gyU9eyHkcHGO5LdHW9kn6zXxUWR58ILg0-fX5WRbOlQ"
     SPREAD_SHEET_NAME = "Worklog Template"
+
+    @staticmethod
+    def jira_worklog_path(key: str) -> str:
+        return f"/rest/api/3/issue/{key}/worklog"
+
+
 class STORAGE(Enum):
-    def GET_DOCUMENT_PATH() -> str:
-        return  os.path.join(os.environ["USERPROFILE"], "Documents") 
-    def GET_PROJECT_ROOT() -> Path:
-        return Path(__file__).parent.parent
-    DIRECTORY_NAME = "Worklog"
+    DIRECTORY_NAME = _WORKLOG_DIR
     IMAGE_DIRECTORY_NAME = "image"
     GOOGLE_API_CREDENTIALS_FILE = "credentials.json"
     GOOGLE_API_AUTHORIZED_USER_FILE = "authorized_user.json"
@@ -24,12 +38,12 @@ class STORAGE(Enum):
     HISTORY_FILE = "history.json"
     GOOGLE_SHEET_IMAGE = "google_sheet_image.png"
     TOOLTIP_IMAGE = "tooltip_image.png"
-    STORAGE_PATH = f"{GET_DOCUMENT_PATH()}/{DIRECTORY_NAME}"
-    IMAGE_PATH = f"{GET_PROJECT_ROOT()}/{IMAGE_DIRECTORY_NAME}"
-    TOKEN_PATH = f"{STORAGE_PATH}/{TOKEN_FILE}"
-    GOOGLE_API_CREDENTIALS_PATH = f"{STORAGE_PATH}/{GOOGLE_API_CREDENTIALS_FILE}"
-    GOOGLE_API_AUTHORIZED_USER_PATH = f"{STORAGE_PATH}/{GOOGLE_API_AUTHORIZED_USER_FILE}"
-    INFORMATION_PATH = f"{STORAGE_PATH}/{INFORMATION_FILE}"
+    STORAGE_PATH = _STORAGE
+    IMAGE_PATH = f"{_ROOT}/image"
+    TOKEN_PATH = f"{_STORAGE}/token.json"
+    GOOGLE_API_CREDENTIALS_PATH = f"{_STORAGE}/credentials.json"
+    GOOGLE_API_AUTHORIZED_USER_PATH = f"{_STORAGE}/authorized_user.json"
+    INFORMATION_PATH = f"{_STORAGE}/info.json"
 
 
 class WIDGET(Enum):
@@ -37,13 +51,16 @@ class WIDGET(Enum):
     PAD_Y = 20
     WIDTH = 40
     HEIGHT = 40
+
+
 class TEXTSIZE(Enum):
     TEXT_LG = 30
     TEXT_MD = 24
     TEXT_SM = 16
     TEXT_X_SM = 14
 
+
 class REGEX(Enum):
-    DATE = "\\d{2}\\/\\d{2}\\/\\d{4}" #pattern dd/mm/yyyy (0-9)
-    HOUR_JIRA = "\\d+[Hh]" #pattern [0-9]+h
-    MINUTE_JIRA = "\\d+[Mm]" #pattern [0-9]+h
+    DATE = r"\d{2}\/\d{2}\/\d{4}"
+    HOUR_JIRA = r"\d+[Hh]"
+    MINUTE_JIRA = r"\d+[Mm]"
