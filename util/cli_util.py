@@ -18,10 +18,15 @@ class JiraWorklogCLI:
 
     async def run(self):
         print("\nInitializing Jira Worklog CLI...")
+        args = sys.argv[1:]
+
+        if "-h" in args or "--help" in args:
+            self._print_help()
+            return
+
         if not self._validate_credentials():
             return
 
-        args = sys.argv[1:]
         if "-ga" in args:
             await self.handle_auto_git()
         elif "-gm" in args:
@@ -30,6 +35,7 @@ class JiraWorklogCLI:
             await self.handle_manual_all()
         else:
             print("Error: Unknown flag. Use -ga, -gm [KEY], or -m")
+            print("Run with -h or --help for usage.")
 
     # ── credential validation ────────────────────────────────────────────────
 
@@ -43,10 +49,32 @@ class JiraWorklogCLI:
         except Exception as e:
             print(f"Error reading token file: {e}")
             return False
-        if common_util.now_greater_than_date(token_info["expire_date"], "%d/%m/%Y"):
+        days_left = common_util.days_until_date(token_info["expire_date"], "%d/%m/%Y")
+        if days_left < 0:
             print("Error: Jira API token has expired. Re-authenticate via the GUI.")
             return False
+        if days_left <= 3:
+            print(
+                "\033[1;33m"
+                f"[WARNING] Jira API token expires in {days_left} day(s). Re-authenticate via the GUI soon."
+                "\033[0m"
+            )
         return True
+
+    def _print_help(self) -> None:
+        print(
+            "\nUsage: gui.py [FLAG] [OPTIONS]\n"
+            "\nFlags:\n"
+            "  -ga            Auto Git     — reads issue key and time from current branch\n"
+            "  -gm [KEY]      Git Manual   — uses git time, you provide the issue key\n"
+            "  -m             Manual       — enter all fields manually\n"
+            "  -h, --help     Show this help message\n"
+            "\nExamples:\n"
+            "  python gui.py -ga\n"
+            "  python gui.py -gm PROJECT-123\n"
+            "  python gui.py -m\n"
+            "\nNo flag: launches the GUI."
+        )
 
     # ── arg parsing ──────────────────────────────────────────────────────────
 

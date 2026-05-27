@@ -33,6 +33,10 @@ def now_greater_than_date(date_string: str, fmt: str) -> bool:
     return datetime.now() > datetime.strptime(date_string, fmt)
 
 
+def days_until_date(date_string: str, fmt: str) -> int:
+    return (datetime.strptime(date_string, fmt) - datetime.now()).days
+
+
 def get_user(email: str, api: str, prefix: str) -> requests.Response:
     url = f"https://{prefix}.atlassian.net/rest/api/3/myself"
     return requests.get(url, headers={"Accept": "application/json"}, auth=HTTPBasicAuth(email, api))

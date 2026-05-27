@@ -1,8 +1,9 @@
 import sys
 import asyncio
 
+help_flags = {"-h", "--help"}
 cli_flags = {"-ga", "-gm", "-m"}
-if any(flag in sys.argv for flag in cli_flags):
+if any(flag in sys.argv for flag in help_flags | cli_flags):
     from util.cli_util import JiraWorklogCLI
     asyncio.run(JiraWorklogCLI().run())
     sys.exit(0)
@@ -56,10 +57,17 @@ class App(ctk.CTk):
             info = file_util.read_json(STORAGE.STORAGE_PATH.value, STORAGE.TOKEN_FILE.value)
         except Exception:
             return False
-        if common_util.now_greater_than_date(info["expire_date"], "%d/%m/%Y"):
-            dialog = GuiUtil().show_dialog("Info", "check", "Jira API token has expired", option_1="OK")
+        days_left = common_util.days_until_date(info["expire_date"], "%d/%m/%Y")
+        if days_left < 0:
+            dialog = GuiUtil().show_dialog("Info", "cancel", "Jira API token has expired", option_1="OK")
             if dialog.get() == "OK":
                 return False
+        elif days_left <= 3:
+            GuiUtil().show_dialog(
+                "Warning", "warning",
+                f"Jira API token expires in {days_left} day(s).\nRe-authenticate soon.",
+                options="OK",
+            )
         return True
 
 
