@@ -4,7 +4,7 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
     QPushButton, QComboBox, QCheckBox, QMessageBox, QInputDialog, QDateEdit,
 )
-from PySide6.QtCore import Qt, QDate
+from PySide6.QtCore import Qt, QDate, QLocale
 from PySide6.QtGui import QCursor
 
 import util.common_util as common_util
@@ -106,6 +106,7 @@ class WorklogPage(QWidget):
         date_lbl.setFixedWidth(110)
         date_row.addWidget(date_lbl)
         self.date_edit = QDateEdit(QDate.currentDate())
+        self.date_edit.setLocale(QLocale(QLocale.Language.English, QLocale.Country.UnitedStates))
         self.date_edit.setDisplayFormat("dd/MM/yyyy")
         self.date_edit.setCalendarPopup(True)
         self.date_edit.setFixedWidth(150)
