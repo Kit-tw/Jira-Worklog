@@ -47,23 +47,20 @@ class JiraUtil:
             "Accept" : "application/json",
             "Content-Type": "application/json"
         }
-        payload = json.dumps({
-            "comment" : {
-                "content":[
-                    {
-                    "content":[{
-                            "text":description,
-                            "type":"text"
-                            }],
-                    "type":"paragraph"
-                    }
-                    ],
-                    "type":"doc",
-                    "version":1
-            },
-            "started":date,
-            "timeSpent":time_spend
-        })
+        body = {
+            "started": date,
+            "timeSpent": time_spend,
+        }
+        if description:
+            body["comment"] = {
+                "type": "doc",
+                "version": 1,
+                "content": [{
+                    "type": "paragraph",
+                    "content": [{"type": "text", "text": description}],
+                }],
+            }
+        payload = json.dumps(body)
         async with aiohttp.ClientSession() as session:
             async with session.post(url, data=payload, headers=headers, auth=auth) as response:
                 text = await response.text()

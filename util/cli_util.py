@@ -3,6 +3,7 @@ import re
 import json
 import sys
 import asyncio
+from datetime import datetime
 from constant.Enum import STORAGE
 import util.common_util as common_util
 from util.git_util import GitUtil
@@ -107,7 +108,7 @@ class JiraWorklogCLI:
                     print("Error: Time spent cannot be empty.")
         return default_time
 
-    async def execute_worklog_submission(self, issue_key, issue_name, date_val, time_val, comment_val):
+    async def execute_worklog_submission(self, issue_key, issue_name, date_val, time_val, comment_val, sheets_override=None):
         print("\nInserting worklog to Jira...")
         try:
             date_iso = common_util.date_str_to_iso(date_val)
@@ -115,10 +116,14 @@ class JiraWorklogCLI:
             if 200 <= status < 300:
                 print("Successfully logged work to Jira!")
                 self._save_local_history(issue_key, issue_name)
-                
+
                 if self.has_sheets:
-                    confirm_sheet = input("Insert to Google Sheets? (y/n) [y]: ").strip().lower()
-                    if confirm_sheet in ('', 'y', 'yes'):
+                    if sheets_override is None:
+                        confirm_sheet = input("Insert to Google Sheets? (y/n) [y]: ").strip().lower()
+                        do_sheets = confirm_sheet in ('', 'y', 'yes')
+                    else:
+                        do_sheets = sheets_override
+                    if do_sheets:
                         print("Inserting to Google Sheets...")
                         try:
                             from util.sheets_util import SheetsUtil
@@ -155,6 +160,65 @@ class JiraWorklogCLI:
 
 
 
+    def _prompt_range(self, entries: list) -> tuple:
+        """Display reflog list, prompt for anchor and end, return (anchor_idx, end_idx) in array coords."""
+        n = len(entries)
+        PAGE_SIZE = 20
+        shown = min(PAGE_SIZE, n)
+
+        while True:
+            print("\nReflog entries (1 = newest):")
+            print(f"  {'#':>3}  {'Date':10}  {'Time':5}  Message")
+            print("  " + "-" * 62)
+            for ui_num in range(1, shown + 1):
+                arr_idx = n - ui_num
+                e = entries[arr_idx]
+                msg = e["message"]
+                if len(msg) > 50:
+                    msg = msg[:47] + "..."
+                print(f"  {ui_num:>3}  {e['date']:10}  {e['time_str']:5}  {msg}")
+
+            if shown < n:
+                print(f"  ... ({n - shown} more older entries, valid range 1-{n})")
+                expand = input("Show more? (y/n) [n]: ").strip().lower()
+                if expand in ('y', 'yes'):
+                    shown = n
+                    continue
+            break
+
+        # Smart default: anchor = entry just before today's first commit
+        today_str = datetime.now().strftime("%d/%m/%Y")
+        first_today_arr_idx = next((i for i in range(n) if entries[i]["date"] == today_str), None)
+        if first_today_arr_idx is None or first_today_arr_idx == 0:
+            default_start_num = n
+        else:
+            default_start_num = n - (first_today_arr_idx - 1)
+        default_end_num = 1
+
+        while True:
+            try:
+                s = input(f"\nStart anchor (older, not logged) [{default_start_num}]: ").strip()
+                start_num = int(s) if s else default_start_num
+                e = input(f"End (newer, included) [{default_end_num}]: ").strip()
+                end_num = int(e) if e else default_end_num
+            except ValueError:
+                print("Error: Please enter a valid number.")
+                continue
+
+            if not (1 <= start_num <= n):
+                print(f"Error: Start must be between 1 and {n}.")
+                continue
+            if not (1 <= end_num <= n):
+                print(f"Error: End must be between 1 and {n}.")
+                continue
+            if end_num >= start_num:
+                print(f"Error: End ({end_num}) must be newer (smaller #) than Start ({start_num}).")
+                continue
+
+            anchor_arr_idx = n - start_num
+            end_arr_idx = n - end_num
+            return anchor_arr_idx, end_arr_idx
+
     async def handle_git_manual_issue(self, issue_key_arg=None):
         print("\n--- Running Git Manual Issue Mode (-gm) ---")
 
@@ -173,7 +237,7 @@ class JiraWorklogCLI:
             git_details = self.git_util.get_git_detail()
             default_date = git_details.get("date", default_date)
             default_time = git_details.get("time_spend", default_time)
-            default_comment = git_details.get("description", default_comment)
+            default_comment = GitUtil.clean_reflog_message(git_details.get("description", default_comment))
             time_spend_mins = git_details.get("time_spend_minutes", 0)
         except Exception as e:
             print(f"Note: Could not calculate git details from reflog ({e}). Using defaults.")
@@ -288,22 +352,179 @@ class JiraWorklogCLI:
         except Exception as e:
             print(f"Warning: Could not fetch Jira issue details: {e}")
 
+        # Load reflog entries for range selection
+        try:
+            entries = self.git_util.get_reflog_entries()
+        except Exception as e:
+            print(f"Error reading reflog: {e}")
+            return
+
+        if len(entries) < 2:
+            print("Note: Not enough reflog entries for range selection. Using latest commit only.")
+            await self._handle_auto_git_single(issue_key, issue_name)
+            return
+
+        # Pick range
+        anchor_idx, end_idx = self._prompt_range(entries)
+        range_entries = self.git_util.calc_range_entries(entries, anchor_idx, end_idx)
+        if not range_entries:
+            print("Error: No loggable commits in the selected range.")
+            return
+
+        count = len(range_entries)
+        print(f"\nFound {count} commit(s) in range.")
+        mode_input = input("Post as (1) combined entry or (2) separate per commit? [1]: ").strip()
+        use_separate = mode_input == "2"
+
+        issue_key, issue_name = await self.prompt_and_fetch_issue_key(default_key=issue_key)
+
+        if use_separate:
+            sheets_override = None
+            if self.has_sheets:
+                confirm_sheet = input("\nInsert all entries to Google Sheets? (y/n) [y]: ").strip().lower()
+                sheets_override = confirm_sheet not in ('n', 'no')
+
+            for i, entry in enumerate(range_entries):
+                print(f"\n[{i + 1}/{count}] ------------------------------------------------")
+                default_date = entry["date"]
+                default_time = entry["time_spend"]
+                default_comment = GitUtil.clean_reflog_message(entry["description"])
+                time_spend_mins = entry["time_spend_minutes"]
+
+                if entry["capped"]:
+                    raw_h = entry["raw_minutes"] // 60
+                    raw_m = entry["raw_minutes"] % 60
+                    raw_str = f"{raw_h}h {raw_m}m" if raw_m else f"{raw_h}h"
+                    print(f"\033[1;33m[INFO] Raw time was {raw_str}, capped to 8h.\033[0m")
+                    ack = input("\033[1;33mAccept 8h or enter a custom time (Enter = accept): \033[0m").strip()
+                    if ack:
+                        default_time = ack
+                else:
+                    default_time = self.prompt_time_threshold_check(default_time, time_spend_mins)
+
+                while True:
+                    user_date = input(f"Date (dd/mm/yyyy) [{default_date}]: ").strip()
+                    date_val = user_date if user_date else default_date
+                    if re.match(r'^\d{2}/\d{2}/\d{4}$', date_val):
+                        break
+                    print("Error: Invalid date format. Please use dd/mm/yyyy.")
+
+                while True:
+                    user_time = input(f"Time spent (e.g. 3h, 20m) [{default_time}]: ").strip()
+                    time_val = user_time if user_time else default_time
+                    if time_val:
+                        break
+                    print("Error: Time spent cannot be empty.")
+
+                user_comment = input(f"Comment [{default_comment}]: ").strip()
+                comment_val = user_comment if user_comment else default_comment
+
+                print(f"\nIssue: {issue_key} | Date: {date_val} | Time: {time_val}")
+                print(f"Comment: {comment_val}")
+                confirm = input("Confirm and Log Work to Jira? (y/n) [y]: ").strip().lower()
+                if confirm not in ('', 'y', 'yes'):
+                    print("Skipped.")
+                    continue
+
+                await self.execute_worklog_submission(issue_key, issue_name, date_val, time_val, comment_val, sheets_override=sheets_override)
+
+        else:
+            # Combined: total time = end.datetime - anchor.datetime
+            anchor_dt = entries[anchor_idx]["datetime"]
+            end_dt = entries[end_idx]["datetime"]
+            total_seconds = (end_dt - anchor_dt).total_seconds()
+            total_minutes = max(1, int(total_seconds // 60))
+            hours = total_minutes // 60
+            mins = total_minutes % 60
+            capped = hours >= 8
+
+            if capped:
+                combined_time = "8h"
+                combined_minutes = 480
+            else:
+                parts = []
+                if hours > 0:
+                    parts.append(f"{hours}h")
+                if mins > 0:
+                    parts.append(f"{mins}m")
+                combined_time = " ".join(parts) if parts else "1m"
+                combined_minutes = total_minutes
+
+            if capped:
+                raw_h = total_minutes // 60
+                raw_m = total_minutes % 60
+                raw_str = f"{raw_h}h {raw_m}m" if raw_m else f"{raw_h}h"
+                print(f"\033[1;33m[INFO] Raw total was {raw_str}, capped to 8h.\033[0m")
+                ack = input("\033[1;33mAccept 8h or enter a custom time (Enter = accept): \033[0m").strip()
+                if ack:
+                    combined_time = ack
+            else:
+                combined_time = self.prompt_time_threshold_check(combined_time, combined_minutes)
+
+            combined_date = entries[end_idx]["date"]
+
+            print("\n==================================================")
+            print("              JIRA WORKLOG EDITOR                 ")
+            print("==================================================")
+            print("Press [Enter] to accept the suggested value in brackets.")
+
+            print("\nCommits in range:")
+            for e in range_entries:
+                print(f"  • {GitUtil.clean_reflog_message(e['description'])}")
+
+            while True:
+                user_date = input(f"\nDate (dd/mm/yyyy) [{combined_date}]: ").strip()
+                date_val = user_date if user_date else combined_date
+                if re.match(r'^\d{2}/\d{2}/\d{4}$', date_val):
+                    break
+                print("Error: Invalid date format. Please use dd/mm/yyyy.")
+
+            while True:
+                user_time = input(f"Time spent (e.g. 3h, 20m) [{combined_time}]: ").strip()
+                time_val = user_time if user_time else combined_time
+                if time_val:
+                    break
+                print("Error: Time spent cannot be empty.")
+
+            comment_val = input("Comment (Enter to skip): ").strip()
+
+            print("\n--- Summary ---")
+            print(f"Issue Key  : {issue_key}")
+            print(f"Issue Name : {issue_name or 'N/A'}")
+            print(f"Date       : {date_val}")
+            print(f"Time Spent : {time_val}")
+            print(f"Comment    : {comment_val}")
+
+            confirm_insert = input("\nConfirm and Log Work to Jira? (y/n) [y]: ").strip().lower()
+            if confirm_insert not in ('', 'y', 'yes'):
+                print("Operation cancelled.")
+                return
+
+            await self.execute_worklog_submission(issue_key, issue_name, date_val, time_val, comment_val)
+
+    async def _handle_auto_git_single(self, issue_key: str, issue_name: str):
+        """Fallback single-commit flow used when reflog has fewer than 2 entries."""
         default_date = common_util.get_currentdate_forentry()
         default_time = ""
         default_comment = ""
-        
+
         try:
             git_details = self.git_util.get_git_detail()
             default_date = git_details.get("date", default_date)
             default_time = git_details.get("time_spend", default_time)
-            default_comment = git_details.get("description", default_comment)
-            
+            default_comment = GitUtil.clean_reflog_message(git_details.get("description", default_comment))
             time_spend_mins = git_details.get("time_spend_minutes", 0)
-            default_time = self.prompt_time_threshold_check(default_time, time_spend_mins)
+            if default_time:
+                default_time = self.prompt_time_threshold_check(default_time, time_spend_mins)
         except Exception as e:
-            print(f"Note: Could not calculate git details from reflog ({e}). Using defaults.")
+            print(f"Note: Could not calculate git details ({e}). Using defaults.")
 
         issue_key, issue_name = await self.prompt_and_fetch_issue_key(default_key=issue_key)
+
+        print("\n==================================================")
+        print("              JIRA WORKLOG EDITOR                 ")
+        print("==================================================")
+        print("Press [Enter] to accept the suggested value in brackets.")
 
         while True:
             user_date = input(f"Date (dd/mm/yyyy) [{default_date}]: ").strip()
@@ -328,10 +549,6 @@ class JiraWorklogCLI:
         print(f"Date       : {date_val}")
         print(f"Time Spent : {time_val}")
         print(f"Comment    : {comment_val}")
-        if self.has_sheets:
-            print("Google Sheets integration is available.")
-        else:
-            print("Google Sheets integration is not configured.")
 
         confirm_insert = input("\nConfirm and Log Work to Jira? (y/n) [y]: ").strip().lower()
         if confirm_insert not in ('', 'y', 'yes'):
