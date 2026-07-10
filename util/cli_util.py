@@ -8,11 +8,13 @@ from constant.Enum import STORAGE
 import util.common_util as common_util
 from util.git_util import GitUtil
 from util.jira_util import JiraUtil
+from util.worklog_service import WorklogService, WorklogRequest
 
 class JiraWorklogCLI:
     def __init__(self):
         self.git_util = GitUtil()
         self.jira_util = JiraUtil()
+        self._worklog_service = WorklogService(self.jira_util)
         self.credentials_path = os.path.join(STORAGE.STORAGE_PATH.value, STORAGE.GOOGLE_API_CREDENTIALS_FILE.value)
         self.has_sheets = os.path.exists(self.credentials_path)
 
@@ -111,52 +113,30 @@ class JiraWorklogCLI:
     async def execute_worklog_submission(self, issue_key, issue_name, date_val, time_val, comment_val, sheets_override=None):
         print("\nInserting worklog to Jira...")
         try:
-            date_iso = common_util.date_str_to_iso(date_val)
-            status, response_text = await self.jira_util.post_insert_worklog(issue_key, time_val, date_iso, comment_val)
-            if 200 <= status < 300:
-                print("Successfully logged work to Jira!")
-                self._save_local_history(issue_key, issue_name)
+            request = WorklogRequest(
+                issue_key=issue_key,
+                time_spend=time_val,
+                date=date_val,
+                description=comment_val or None,
+            )
+            result = await self._worklog_service.submit(request)
+            print("Successfully logged work to Jira!")
 
-                if self.has_sheets:
-                    if sheets_override is None:
-                        confirm_sheet = input("Insert to Google Sheets? (y/n) [y]: ").strip().lower()
-                        do_sheets = confirm_sheet in ('', 'y', 'yes')
-                    else:
-                        do_sheets = sheets_override
-                    if do_sheets:
-                        print("Inserting to Google Sheets...")
-                        try:
-                            from util.sheets_util import SheetsUtil
-                            SheetsUtil(key=issue_key, date=date_val, time=time_val, description=comment_val)
-                            print("Successfully inserted to Google Sheets!")
-                        except Exception as sheet_err:
-                            print(f"Error inserting to Google Sheets: {sheet_err}")
-            else:
-                print(f"Error: Failed to log work to Jira (Status {status}).")
-                print(f"Response: {response_text}")
+            if self.has_sheets:
+                if sheets_override is None:
+                    confirm_sheet = input("Insert to Google Sheets? (y/n) [y]: ").strip().lower()
+                    do_sheets = confirm_sheet in ('', 'y', 'yes')
+                else:
+                    do_sheets = sheets_override
+                if do_sheets:
+                    print("Inserting to Google Sheets...")
+                    try:
+                        self._worklog_service.submit_to_sheets(result)
+                        print("Successfully inserted to Google Sheets!")
+                    except Exception as sheet_err:
+                        print(f"Error inserting to Google Sheets: {sheet_err}")
         except Exception as err:
             print(f"Error: An unexpected error occurred: {err}")
-
-    def _save_local_history(self, issue_key, issue_name):
-        try:
-            history_path = os.path.join(STORAGE.STORAGE_PATH.value, STORAGE.HISTORY_FILE.value)
-            history = []
-            if os.path.isfile(history_path):
-                with open(history_path, 'r') as f:
-                    history = json.load(f)
-            
-            if not any(item.get("key") == issue_key for item in history):
-                history.append({
-                    "key": issue_key,
-                    "name": issue_name,
-                    "summary": f"{issue_key} : {issue_name}"
-                })
-                os.makedirs(STORAGE.STORAGE_PATH.value, exist_ok=True)
-                with open(history_path, 'w') as f:
-                    json.dump(history, f)
-                print("Updated local history.")
-        except Exception as hist_err:
-            print(f"Note: Failed to update local history file: {hist_err}")
 
 
 

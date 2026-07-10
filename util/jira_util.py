@@ -1,18 +1,18 @@
 import aiohttp
-import util.common_util as common_util
+import util.file_util as file_util
 from constant.Enum import (STORAGE, URL)
 import json
 
 class JiraUtil:
     def __init__(self):
-        self.jira_data = common_util.read_json_file(STORAGE.STORAGE_PATH.value,STORAGE.TOKEN_FILE.value)
-        self.mail = self.jira_data["jira_email"]
-        self.api_token  = self.jira_data["jira_api"]
-        self.prefix_url = self.jira_data["jira_prefix"]
+        jira_data = file_util.read_json_file(STORAGE.STORAGE_PATH.value, STORAGE.TOKEN_FILE.value)
+        self.mail = jira_data["jira_email"]
+        self.api_token  = jira_data["jira_api"]
+        self.prefix_url = jira_data["jira_prefix"]
         self.full_url = self.get_jira_site(self.prefix_url)
 
     async def fetch_issue(self,key):
-        json_path = common_util.find(STORAGE.STORAGE_PATH.value, STORAGE.TOKEN_FILE.value)
+        json_path = file_util.find(STORAGE.STORAGE_PATH.value, STORAGE.TOKEN_FILE.value)
         if not json_path:
             raise Exception(f"JSON api storage file at {json_path} does not exist.")
         

@@ -4,7 +4,7 @@ import threading
 from util.jira_util import JiraUtil
 from util.git_util import GitUtil
 from util.gui_util import GuiUtil
-from util.sheets_util import SheetsUtil
+from util.worklog_service import WorklogService, WorklogRequest
 from src.tooltip_toplevel import ToolTip
 from src.google_api_add_page import GoogleApiPage
 import util.common_util as common_util
@@ -29,6 +29,7 @@ class WorkLog(ctk.CTkFrame):
     def __init__(self, parent : any):
         super().__init__(parent)
         self.jira_util = JiraUtil()
+        self._worklog_service = WorklogService(self.jira_util)
         self.gui_util = GuiUtil(self)
         self.api_authorized = self.find_and_validate_api_authorized()
         self.api_credentials =  common_util.find(STORAGE.STORAGE_PATH.value,STORAGE.GOOGLE_API_CREDENTIALS_FILE.value)
@@ -170,30 +171,39 @@ class WorkLog(ctk.CTkFrame):
         issue_key = self.jira_url_entry.get()
         is_insert_sheet = self.insert_sheet.get()
 
-        if(not issue_key):
-            self.gui_util.show_dialog("Error", "cancel", "Issue Key is not found", options="OK")
+        request = WorklogRequest(
+            issue_key=issue_key,
+            time_spend=time_spend,
+            date=date,
+            description=description if description != self.PLACEHOLDER_DESCRIPTION else None,
+        )
+        try:
+            self._worklog_service._validate(request)
+        except ValueError as e:
+            self.gui_util.show_dialog("Error", "cancel", str(e), options="OK")
             return
-        if(not time_spend or not re.match(REGEX.DATE.value,date)):
-            self.gui_util.show_dialog("Error", "cancel", "Date and Time field required", options="OK")
-            return
-            
-        date_time = common_util.date_str_to_iso(date)
 
         self.confirm_btn.configure(state="disabled", text="Processing...")
 
         async def process_insert():
-            issue_name = await self.jira_util.fetch_issue(issue_key)
-            await self.jira_util.post_insert_worklog(issue_key,time_spend,date_time,description)
-            return issue_name
+            return await self._worklog_service.submit(request)
 
-        def on_success(issue_name):
-            self.issue_name = issue_name
+        def on_success(result):
+            self.issue_name = result.issue_name
             self.confirm_btn.configure(state="normal", text="Confirm & Log Work")
+            self.worklog_history = common_util.get_worklog_history()
+            self._header_history()
             if is_insert_sheet:
-                self.insert_to_sheet(issue_key,date,time_spend,description)
-            self.save_history_json()
+                try:
+                    self._worklog_service.submit_to_sheets(result)
+                except FileNotFoundError:
+                    dialog_msg = self.gui_util.show_dialog("Warning", "warning", "Google API credentials not found.", option_1="Add", option_2="Exit")
+                    if dialog_msg.get() == "Add":
+                        self.open_googleapi_toplevel()
+                except Exception as e:
+                    self.gui_util.show_dialog("Error", "cancel", str(e), options="OK")
             dialog_msg = self.gui_util.show_dialog("Success", "check", "Worklog has been inserted", option_1="OK", option_2="View in Jira")
-            if(dialog_msg.get() == "View in Jira"):
+            if dialog_msg.get() == "View in Jira":
                 common_util.open_url(self.get_jira_url(issue_key))
 
         def on_error(err):
@@ -201,21 +211,6 @@ class WorkLog(ctk.CTkFrame):
             self.gui_util.show_dialog("Error", "cancel", str(err), options="OK")
 
         self.run_in_background(process_insert(), on_success, on_error)
-
-    def insert_to_sheet(self,
-                        issue_key : str,
-                        date : str,
-                        time_spend : str,
-                        description : str):
-        if(not self.api_credentials):
-            dialog_msg = self.gui_util.show_dialog("Warning","warning","google API in storage not found", option_1="Add", option_2="Exit")
-            if(dialog_msg.get() == "Add"):
-                self.open_googleapi_toplevel()
-            return
-        try:
-            SheetsUtil(key=issue_key,date=date,time=time_spend,description=description)
-        except Exception as e:
-            self.gui_util.show_dialog("Error", "cancel", str(e), options="OK")
     
     def checkbox_callback(self):
         checkbox_value = self.insert_sheet.get()
@@ -293,20 +288,6 @@ class WorkLog(ctk.CTkFrame):
             self.tooltip_toplevel = ToolTip(self) 
         else:
             self.tooltip_toplevel.focus() 
-
-    def save_history_json(self):
-        if(len(self.worklog_history) > 0):
-            history_keyset = set(item["key"] for item in self.worklog_history)
-            if(self.key_var.get() in history_keyset):
-                return
-        json = {
-            "key" : self.key_var.get(),
-            "name" : self.issue_name,
-            "summary" : f"{self.key_var.get()} : {self.issue_name}"
-        }
-        self.worklog_history.append(json)
-        common_util.save_file(STORAGE.STORAGE_PATH.value,STORAGE.HISTORY_FILE.value,self.worklog_history,False)
-        self._header_history()
 
     def find_and_validate_api_authorized(self):
         find = common_util.find(STORAGE.STORAGE_PATH.value,STORAGE.GOOGLE_API_AUTHORIZED_USER_FILE.value)
