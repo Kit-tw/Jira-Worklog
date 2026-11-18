@@ -1,0 +1,86 @@
+
+Initializing Jira Worklog CLI...
+
+--- Running Auto Git Mode (-ga) ---
+Detected issue key from git branch: PROJ-1
+Fetching Jira issue details for 'PROJ-1'...
+[[jira.fetch_issue 'PROJ-1']]
+Jira Issue Found: Fix login
+
+Reflog entries (1 = newest):
+    #  Date        Time   Message
+  --------------------------------------------------------------
+    1  10/03/2025  09:30  commit: step 21
+    2  10/03/2025  09:20  commit: step 20
+    3  10/03/2025  09:10  commit: step 19
+    4  10/03/2025  09:00  commit: step 18
+    5  10/03/2025  08:50  commit: step 17
+    6  10/03/2025  08:40  commit: step 16
+    7  10/03/2025  08:30  commit: step 15
+    8  10/03/2025  08:20  commit: step 14
+    9  10/03/2025  08:10  commit: step 13
+   10  10/03/2025  08:00  commit: step 12
+   11  10/03/2025  07:50  commit: step 11
+   12  10/03/2025  07:40  commit: step 10
+   13  10/03/2025  07:30  commit: step 9
+   14  10/03/2025  07:20  commit: step 8
+   15  10/03/2025  07:10  commit: step 7
+   16  10/03/2025  07:00  commit: step 6
+   17  10/03/2025  06:50  commit: step 5
+   18  10/03/2025  06:40  commit: step 4
+   19  10/03/2025  06:30  commit: step 3
+   20  10/03/2025  06:20  commit: step 2
+  ... (2 more older entries, valid range 1-22)
+Show more? (y/n) [n]: 
+
+Start anchor (older, not logged) [22]: 
+End (newer, included) [1]: 
+
+Found 21 commit(s) in range.
+Post as (1) combined entry or (2) separate per commit? [1]: 
+Issue Key [PROJ-1]: 
+Fetching Jira issue details for 'PROJ-1'...
+[[jira.fetch_issue 'PROJ-1']]
+Jira Issue Found: Fix login
+
+==================================================
+              JIRA WORKLOG EDITOR                 
+==================================================
+Press [Enter] to accept the suggested value in brackets.
+
+Commits in range:
+  • step 1
+  • step 2
+  • step 3
+  • step 4
+  • step 5
+  • step 6
+  • step 7
+  • step 8
+  • step 9
+  • step 10
+  • step 11
+  • step 12
+  • step 13
+  • step 14
+  • step 15
+  • step 16
+  • step 17
+  • step 18
+  • step 19
+  • step 20
+  • step 21
+
+Date (dd/mm/yyyy) [10/03/2025]: 
+Time spent (e.g. 3h, 20m) [3h 30m]: 
+Comment (Enter to skip): 
+
+--- Summary ---
+Issue Key  : PROJ-1
+Issue Name : Fix login
+Date       : 10/03/2025
+Time Spent : 3h 30m
+Comment    : 
+
+Confirm and Log Work to Jira? (y/n) [y]: n
+Operation cancelled.

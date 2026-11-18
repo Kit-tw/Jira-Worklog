@@ -1,0 +1,76 @@
+
+Initializing Jira Worklog CLI...
+
+--- Running Auto Git Mode (-ga) ---
+Detected issue key from git branch: PROJ-1
+Fetching Jira issue details for 'PROJ-1'...
+[[jira.fetch_issue 'PROJ-1']]
+Jira Issue Found: Fix login
+
+Reflog entries (1 = newest):
+    #  Date        Time   Message
+  --------------------------------------------------------------
+    1  10/03/2025  18:15  commit: docs
+    2  10/03/2025  17:30  commit: big feature
+    3  10/03/2025  08:10  commit: tiny fix
+    4  10/03/2025  08:00  checkout: moving from main to PROJ-1
+
+Start anchor (older, not logged) [4]: 
+End (newer, included) [1]: 
+
+Found 3 commit(s) in range.
+Post as (1) combined entry or (2) separate per commit? [1]: 2
+Issue Key [PROJ-1]: PROJ-2
+Fetching Jira issue details for 'PROJ-2'...
+[[jira.fetch_issue 'PROJ-2']]
+Jira Issue Found: Add export
+
+Insert all entries to Google Sheets? (y/n) [y]: 
+
+[1/3] ------------------------------------------------
+[1;33m================================================================================
+[WARNING] Calculated time spent from git is less than the minimum threshold.
+================================================================================[0m
+[1;33mAre you sure to add 10m to worklog? (y/n) [y]: [0m
+Date (dd/mm/yyyy) [10/03/2025]: 
+Time spent (e.g. 3h, 20m) [10m]: 
+Comment [tiny fix]: 
+
+Issue: PROJ-2 | Date: 10/03/2025 | Time: 10m
+Comment: tiny fix
+Confirm and Log Work to Jira? (y/n) [y]: 
+
+Inserting worklog to Jira...
+[[service.submit WorklogRequest(issue_key='PROJ-2', time_spend='10m', date='10/03/2025', description='tiny fix')]]
+Successfully logged work to Jira!
+Inserting to Google Sheets...
+[[service.submit_to_sheets WorklogResult(issue_key='PROJ-2', issue_name='Add export', date='10/03/2025', time_spend='10m', description='tiny fix')]]
+Successfully inserted to Google Sheets!
+
+[2/3] ------------------------------------------------
+[1;33m[INFO] Raw time was 9h 20m, capped to 8h.[0m
+[1;33mAccept 8h or enter a custom time (Enter = accept): [0m7h
+Date (dd/mm/yyyy) [10/03/2025]: 
+Time spent (e.g. 3h, 20m) [7h]: 
+Comment [big feature]: custom comment
+
+Issue: PROJ-2 | Date: 10/03/2025 | Time: 7h
+Comment: custom comment
+Confirm and Log Work to Jira? (y/n) [y]: 
+
+Inserting worklog to Jira...
+[[service.submit WorklogRequest(issue_key='PROJ-2', time_spend='7h', date='10/03/2025', description='custom comment')]]
+Successfully logged work to Jira!
+Inserting to Google Sheets...
+[[service.submit_to_sheets WorklogResult(issue_key='PROJ-2', issue_name='Add export', date='10/03/2025', time_spend='7h', description='custom comment')]]
+Successfully inserted to Google Sheets!
+
+[3/3] ------------------------------------------------
+Date (dd/mm/yyyy) [10/03/2025]: 
+Time spent (e.g. 3h, 20m) [45m]: 
+Comment [docs]: 
+
+Issue: PROJ-2 | Date: 10/03/2025 | Time: 45m
+Comment: docs
+Confirm and Log Work to Jira? (y/n) [y]: n
+Skipped.

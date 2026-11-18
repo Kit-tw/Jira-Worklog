@@ -1,0 +1,3 @@
+
+Initializing Jira Worklog CLI...
+Error reading Jira token file: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)

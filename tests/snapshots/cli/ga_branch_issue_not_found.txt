@@ -1,0 +1,37 @@
+
+Initializing Jira Worklog CLI...
+
+--- Running Auto Git Mode (-ga) ---
+Detected issue key from git branch: PROJ-404
+Fetching Jira issue details for 'PROJ-404'...
+[[jira.fetch_issue 'PROJ-404']]
+Warning: Could not fetch Jira issue details: Fetch issue #PROJ-404 error: 404
+Note: Not enough reflog entries for range selection. Using latest commit only.
+Note: Could not calculate git details (Could not get git details: boom). Using defaults.
+Issue Key [PROJ-404]: 
+Fetching Jira issue details for 'PROJ-404'...
+[[jira.fetch_issue 'PROJ-404']]
+Error fetching issue 'PROJ-404': Fetch issue #PROJ-404 error: 404
+Do you want to re-enter? (y/n) [y]: 
+Issue Key [PROJ-404]: PROJ-1
+Fetching Jira issue details for 'PROJ-1'...
+[[jira.fetch_issue 'PROJ-1']]
+Jira Issue Found: Fix login
+
+==================================================
+              JIRA WORKLOG EDITOR                 
+==================================================
+Press [Enter] to accept the suggested value in brackets.
+Date (dd/mm/yyyy) [01/02/2025]: 
+Time spent (e.g. 3h, 20m) []: 2h
+Comment []: 
+
+--- Summary ---
+Issue Key  : PROJ-1
+Issue Name : Fix login
+Date       : 01/02/2025
+Time Spent : 2h
+Comment    : 
+
+Confirm and Log Work to Jira? (y/n) [y]: n
+Operation cancelled.

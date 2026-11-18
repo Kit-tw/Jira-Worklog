@@ -1,0 +1,57 @@
+
+Initializing Jira Worklog CLI...
+
+--- Running Auto Git Mode (-ga) ---
+Detected issue key from git branch: PROJ-1
+Fetching Jira issue details for 'PROJ-1'...
+[[jira.fetch_issue 'PROJ-1']]
+Jira Issue Found: Fix login
+
+Reflog entries (1 = newest):
+    #  Date        Time   Message
+  --------------------------------------------------------------
+    1  10/03/2025  09:05  commit: typo
+    2  10/03/2025  09:00  checkout: start
+
+Start anchor (older, not logged) [2]: 
+End (newer, included) [1]: 
+
+Found 1 commit(s) in range.
+Post as (1) combined entry or (2) separate per commit? [1]: 
+Issue Key [PROJ-1]: 
+Fetching Jira issue details for 'PROJ-1'...
+[[jira.fetch_issue 'PROJ-1']]
+Jira Issue Found: Fix login
+[1;33m================================================================================
+[WARNING] Calculated time spent from git is less than the minimum threshold.
+================================================================================[0m
+[1;33mAre you sure to add 5m to worklog? (y/n) [y]: [0mn
+Enter time spent (e.g. 3h, 20m): 
+Error: Time spent cannot be empty.
+Enter time spent (e.g. 3h, 20m): 10m
+
+==================================================
+              JIRA WORKLOG EDITOR                 
+==================================================
+Press [Enter] to accept the suggested value in brackets.
+
+Commits in range:
+  • typo
+
+Date (dd/mm/yyyy) [10/03/2025]: 
+Time spent (e.g. 3h, 20m) [10m]: 
+Comment (Enter to skip): 
+
+--- Summary ---
+Issue Key  : PROJ-1
+Issue Name : Fix login
+Date       : 10/03/2025
+Time Spent : 10m
+Comment    : 
+
+Confirm and Log Work to Jira? (y/n) [y]: 
+
+Inserting worklog to Jira...
+[[service.submit WorklogRequest(issue_key='PROJ-1', time_spend='10m', date='10/03/2025', description=None)]]
+Successfully logged work to Jira!
+Error: An unexpected error occurred: Unexpected prompt with no scripted answer: 'Insert to Google Sheets? (y/n) [y]: '

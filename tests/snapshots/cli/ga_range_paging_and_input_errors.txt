@@ -1,0 +1,116 @@
+
+Initializing Jira Worklog CLI...
+
+--- Running Auto Git Mode (-ga) ---
+Detected issue key from git branch: PROJ-1
+Fetching Jira issue details for 'PROJ-1'...
+[[jira.fetch_issue 'PROJ-1']]
+Jira Issue Found: Fix login
+
+Reflog entries (1 = newest):
+    #  Date        Time   Message
+  --------------------------------------------------------------
+    1  10/03/2025  10:00  commit: step 24
+    2  10/03/2025  09:50  commit: step 23
+    3  10/03/2025  09:40  commit: a very long commit message that will be...
+    4  10/03/2025  09:30  commit: step 21
+    5  10/03/2025  09:20  commit: step 20
+    6  10/03/2025  09:10  commit: step 19
+    7  10/03/2025  09:00  commit: step 18
+    8  10/03/2025  08:50  commit: step 17
+    9  10/03/2025  08:40  commit: step 16
+   10  10/03/2025  08:30  commit: step 15
+   11  10/03/2025  08:20  commit: step 14
+   12  10/03/2025  08:10  commit: step 13
+   13  10/03/2025  08:00  commit: step 12
+   14  10/03/2025  07:50  commit: step 11
+   15  10/03/2025  07:40  commit: step 10
+   16  10/03/2025  07:30  commit: step 9
+   17  10/03/2025  07:20  commit: step 8
+   18  10/03/2025  07:10  commit: step 7
+   19  10/03/2025  07:00  commit: step 6
+   20  10/03/2025  06:50  commit: step 5
+  ... (5 more older entries, valid range 1-25)
+Show more? (y/n) [n]: y
+
+Reflog entries (1 = newest):
+    #  Date        Time   Message
+  --------------------------------------------------------------
+    1  10/03/2025  10:00  commit: step 24
+    2  10/03/2025  09:50  commit: step 23
+    3  10/03/2025  09:40  commit: a very long commit message that will be...
+    4  10/03/2025  09:30  commit: step 21
+    5  10/03/2025  09:20  commit: step 20
+    6  10/03/2025  09:10  commit: step 19
+    7  10/03/2025  09:00  commit: step 18
+    8  10/03/2025  08:50  commit: step 17
+    9  10/03/2025  08:40  commit: step 16
+   10  10/03/2025  08:30  commit: step 15
+   11  10/03/2025  08:20  commit: step 14
+   12  10/03/2025  08:10  commit: step 13
+   13  10/03/2025  08:00  commit: step 12
+   14  10/03/2025  07:50  commit: step 11
+   15  10/03/2025  07:40  commit: step 10
+   16  10/03/2025  07:30  commit: step 9
+   17  10/03/2025  07:20  commit: step 8
+   18  10/03/2025  07:10  commit: step 7
+   19  10/03/2025  07:00  commit: step 6
+   20  10/03/2025  06:50  commit: step 5
+   21  10/03/2025  06:40  commit: step 4
+   22  10/03/2025  06:30  commit: step 3
+   23  10/03/2025  06:20  commit: step 2
+   24  10/03/2025  06:10  commit: step 1
+   25  10/03/2025  06:00  commit: step 0
+
+Start anchor (older, not logged) [25]: abc
+Error: Please enter a valid number.
+
+Start anchor (older, not logged) [25]: 0
+End (newer, included) [1]: 
+Error: Start must be between 1 and 25.
+
+Start anchor (older, not logged) [25]: 3
+End (newer, included) [1]: 5
+Error: End (5) must be newer (smaller #) than Start (3).
+
+Start anchor (older, not logged) [25]: 26
+End (newer, included) [1]: 1
+Error: Start must be between 1 and 25.
+
+Start anchor (older, not logged) [25]: 5
+End (newer, included) [1]: 0
+Error: End must be between 1 and 25.
+
+Start anchor (older, not logged) [25]: 5
+End (newer, included) [1]: 2
+
+Found 3 commit(s) in range.
+Post as (1) combined entry or (2) separate per commit? [1]: 
+Issue Key [PROJ-1]: 
+Fetching Jira issue details for 'PROJ-1'...
+[[jira.fetch_issue 'PROJ-1']]
+Jira Issue Found: Fix login
+
+==================================================
+              JIRA WORKLOG EDITOR                 
+==================================================
+Press [Enter] to accept the suggested value in brackets.
+
+Commits in range:
+  • step 21
+  • a very long commit message that will be truncated a very long commit message that will be truncated
+  • step 23
+
+Date (dd/mm/yyyy) [10/03/2025]: 
+Time spent (e.g. 3h, 20m) [30m]: 
+Comment (Enter to skip): x
+
+--- Summary ---
+Issue Key  : PROJ-1
+Issue Name : Fix login
+Date       : 10/03/2025
+Time Spent : 30m
+Comment    : x
+
+Confirm and Log Work to Jira? (y/n) [y]: n
+Operation cancelled.

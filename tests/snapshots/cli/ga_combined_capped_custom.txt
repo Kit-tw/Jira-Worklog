@@ -1,0 +1,48 @@
+
+Initializing Jira Worklog CLI...
+
+--- Running Auto Git Mode (-ga) ---
+Detected issue key from git branch: PROJ-1
+Fetching Jira issue details for 'PROJ-1'...
+[[jira.fetch_issue 'PROJ-1']]
+Jira Issue Found: Fix login
+
+Reflog entries (1 = newest):
+    #  Date        Time   Message
+  --------------------------------------------------------------
+    1  10/03/2025  16:00  commit: exactly eight
+    2  10/03/2025  08:00  checkout: start
+
+Start anchor (older, not logged) [2]: 
+End (newer, included) [1]: 
+
+Found 1 commit(s) in range.
+Post as (1) combined entry or (2) separate per commit? [1]: 
+Issue Key [PROJ-1]: 
+Fetching Jira issue details for 'PROJ-1'...
+[[jira.fetch_issue 'PROJ-1']]
+Jira Issue Found: Fix login
+[1;33m[INFO] Raw total was 8h, capped to 8h.[0m
+[1;33mAccept 8h or enter a custom time (Enter = accept): [0m7h
+
+==================================================
+              JIRA WORKLOG EDITOR                 
+==================================================
+Press [Enter] to accept the suggested value in brackets.
+
+Commits in range:
+  • exactly eight
+
+Date (dd/mm/yyyy) [10/03/2025]: 
+Time spent (e.g. 3h, 20m) [7h]: 
+Comment (Enter to skip): 
+
+--- Summary ---
+Issue Key  : PROJ-1
+Issue Name : Fix login
+Date       : 10/03/2025
+Time Spent : 7h
+Comment    : 
+
+Confirm and Log Work to Jira? (y/n) [y]: n
+Operation cancelled.

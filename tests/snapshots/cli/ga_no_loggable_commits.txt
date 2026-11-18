@@ -1,0 +1,18 @@
+
+Initializing Jira Worklog CLI...
+
+--- Running Auto Git Mode (-ga) ---
+Detected issue key from git branch: PROJ-1
+Fetching Jira issue details for 'PROJ-1'...
+[[jira.fetch_issue 'PROJ-1']]
+Jira Issue Found: Fix login
+
+Reflog entries (1 = newest):
+    #  Date        Time   Message
+  --------------------------------------------------------------
+    1  10/03/2025  10:00  commit: one
+    2  10/03/2025  09:00  checkout: start
+
+Start anchor (older, not logged) [2]: 
+End (newer, included) [1]: 
+Error: No loggable commits in the selected range.

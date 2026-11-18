@@ -1,0 +1,4 @@
+
+Initializing Jira Worklog CLI...
+Error: Jira API token file not found at '<STORAGE>/token.json'.
+Please configure your Jira credentials using the GUI first.

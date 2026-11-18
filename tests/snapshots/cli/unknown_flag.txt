@@ -1,0 +1,3 @@
+
+Initializing Jira Worklog CLI...
+Error: Unknown CLI flag.

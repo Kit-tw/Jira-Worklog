@@ -1,0 +1,3 @@
+
+Initializing Jira Worklog CLI...
+Error: Jira API token has expired. Please re-authenticate using the GUI.
