@@ -3,13 +3,13 @@ import re
 import json
 import sys
 import asyncio
-from datetime import datetime
 from constant.Enum import STORAGE
 import util.common_util as common_util
 from util.git_util import GitUtil
 from util.jira_util import JiraUtil
 from util.worklog_service import WorklogService, WorklogRequest
 from util.cli_args import parse_args, MODE_AUTO_GIT, MODE_GIT_MANUAL, MODE_MANUAL
+import util.cli_git_context as git_context
 
 class JiraWorklogCLI:
     def __init__(self):
@@ -164,13 +164,7 @@ class JiraWorklogCLI:
             break
 
         # Smart default: anchor = entry just before today's first commit
-        today_str = datetime.now().strftime("%d/%m/%Y")
-        first_today_arr_idx = next((i for i in range(n) if entries[i]["date"] == today_str), None)
-        if first_today_arr_idx is None or first_today_arr_idx == 0:
-            default_start_num = n
-        else:
-            default_start_num = n - (first_today_arr_idx - 1)
-        default_end_num = 1
+        default_start_num, default_end_num = git_context.default_range_numbers(entries, git_context.today_str())
 
         while True:
             try:
@@ -199,30 +193,21 @@ class JiraWorklogCLI:
     async def handle_git_manual_issue(self, issue_key_arg=None):
         print("\n--- Running Git Manual Issue Mode (-gm) ---")
 
-        default_date = common_util.get_currentdate_forentry()
-        default_time = ""
-        default_comment = ""
-        time_spend_mins = 0
+        fallback_key = git_context.fallback_issue_key(self.git_util)
 
-        fallback_key = None
+        defaults = git_context.GitDefaults(date=common_util.get_currentdate_forentry())
         try:
-            fallback_key = self.git_util.get_issueName()
-        except Exception:
-            pass
-
-        try:
-            git_details = self.git_util.get_git_detail()
-            default_date = git_details.get("date", default_date)
-            default_time = git_details.get("time_spend", default_time)
-            default_comment = GitUtil.clean_reflog_message(git_details.get("description", default_comment))
-            time_spend_mins = git_details.get("time_spend_minutes", 0)
+            defaults = git_context.load_git_defaults(self.git_util, defaults.date)
         except Exception as e:
             print(f"Note: Could not calculate git details from reflog ({e}). Using defaults.")
+        default_date = defaults.date
+        default_time = defaults.time_spend
+        default_comment = defaults.comment
 
         issue_key, issue_name = await self.get_and_validate_issue_key(issue_key_arg, default_key=fallback_key)
 
         if default_time:
-            default_time = self.prompt_time_threshold_check(default_time, time_spend_mins)
+            default_time = self.prompt_time_threshold_check(default_time, defaults.time_spend_minutes)
 
         print("\n==================================================")
         print("              JIRA WORKLOG EDITOR                 ")
@@ -407,29 +392,13 @@ class JiraWorklogCLI:
 
         else:
             # Combined: total time = end.datetime - anchor.datetime
-            anchor_dt = entries[anchor_idx]["datetime"]
-            end_dt = entries[end_idx]["datetime"]
-            total_seconds = (end_dt - anchor_dt).total_seconds()
-            total_minutes = max(1, int(total_seconds // 60))
-            hours = total_minutes // 60
-            mins = total_minutes % 60
-            capped = hours >= 8
+            range_time = git_context.combined_range_time(entries[anchor_idx]["datetime"], entries[end_idx]["datetime"])
+            combined_time = range_time.time_spend
+            combined_minutes = range_time.time_spend_minutes
 
-            if capped:
-                combined_time = "8h"
-                combined_minutes = 480
-            else:
-                parts = []
-                if hours > 0:
-                    parts.append(f"{hours}h")
-                if mins > 0:
-                    parts.append(f"{mins}m")
-                combined_time = " ".join(parts) if parts else "1m"
-                combined_minutes = total_minutes
-
-            if capped:
-                raw_h = total_minutes // 60
-                raw_m = total_minutes % 60
+            if range_time.capped:
+                raw_h = range_time.raw_minutes // 60
+                raw_m = range_time.raw_minutes % 60
                 raw_str = f"{raw_h}h {raw_m}m" if raw_m else f"{raw_h}h"
                 print(f"\033[1;33m[INFO] Raw total was {raw_str}, capped to 8h.\033[0m")
                 ack = input("\033[1;33mAccept 8h or enter a custom time (Enter = accept): \033[0m").strip()
@@ -481,20 +450,16 @@ class JiraWorklogCLI:
 
     async def _handle_auto_git_single(self, issue_key: str, issue_name: str):
         """Fallback single-commit flow used when reflog has fewer than 2 entries."""
-        default_date = common_util.get_currentdate_forentry()
-        default_time = ""
-        default_comment = ""
-
+        defaults = git_context.GitDefaults(date=common_util.get_currentdate_forentry())
         try:
-            git_details = self.git_util.get_git_detail()
-            default_date = git_details.get("date", default_date)
-            default_time = git_details.get("time_spend", default_time)
-            default_comment = GitUtil.clean_reflog_message(git_details.get("description", default_comment))
-            time_spend_mins = git_details.get("time_spend_minutes", 0)
-            if default_time:
-                default_time = self.prompt_time_threshold_check(default_time, time_spend_mins)
+            defaults = git_context.load_git_defaults(self.git_util, defaults.date)
+            if defaults.time_spend:
+                defaults.time_spend = self.prompt_time_threshold_check(defaults.time_spend, defaults.time_spend_minutes)
         except Exception as e:
             print(f"Note: Could not calculate git details ({e}). Using defaults.")
+        default_date = defaults.date
+        default_time = defaults.time_spend
+        default_comment = defaults.comment
 
         issue_key, issue_name = await self.prompt_and_fetch_issue_key(default_key=issue_key)
 
