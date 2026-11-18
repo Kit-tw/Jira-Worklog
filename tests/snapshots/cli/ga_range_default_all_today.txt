@@ -1,0 +1,46 @@
+
+Initializing Jira Worklog CLI...
+
+--- Running Auto Git Mode (-ga) ---
+Detected issue key from git branch: PROJ-1
+Fetching Jira issue details for 'PROJ-1'...
+[[jira.fetch_issue 'PROJ-1']]
+Jira Issue Found: Fix login
+
+Reflog entries (1 = newest):
+    #  Date        Time   Message
+  --------------------------------------------------------------
+    1  <TODAY>  09:30  commit: t2
+    2  <TODAY>  09:00  commit: t1
+
+Start anchor (older, not logged) [2]: 
+End (newer, included) [1]: 
+
+Found 1 commit(s) in range.
+Post as (1) combined entry or (2) separate per commit? [1]: 
+Issue Key [PROJ-1]: 
+Fetching Jira issue details for 'PROJ-1'...
+[[jira.fetch_issue 'PROJ-1']]
+Jira Issue Found: Fix login
+
+==================================================
+              JIRA WORKLOG EDITOR                 
+==================================================
+Press [Enter] to accept the suggested value in brackets.
+
+Commits in range:
+  • t2
+
+Date (dd/mm/yyyy) [<TODAY>]: 
+Time spent (e.g. 3h, 20m) [30m]: 
+Comment (Enter to skip): 
+
+--- Summary ---
+Issue Key  : PROJ-1
+Issue Name : Fix login
+Date       : <TODAY>
+Time Spent : 30m
+Comment    : 
+
+Confirm and Log Work to Jira? (y/n) [y]: n
+Operation cancelled.

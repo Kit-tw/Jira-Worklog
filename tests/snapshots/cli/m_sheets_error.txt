@@ -1,0 +1,34 @@
+
+Initializing Jira Worklog CLI...
+
+--- Running Manual All Mode (-m) ---
+Issue Key: PROJ-1
+Fetching Jira issue details for 'PROJ-1'...
+[[jira.fetch_issue 'PROJ-1']]
+Jira Issue Found: Fix login
+
+==================================================
+              JIRA WORKLOG EDITOR                 
+==================================================
+Press [Enter] to accept the suggested value in brackets.
+Date (dd/mm/yyyy) [01/02/2025]: 
+Time spent (e.g. 3h, 20m): 1h
+Comment: c
+
+--- Summary ---
+Issue Key  : PROJ-1
+Issue Name : Fix login
+Date       : 01/02/2025
+Time Spent : 1h
+Comment    : c
+Google Sheets integration is available.
+
+Confirm and Log Work to Jira? (y/n) [y]: 
+
+Inserting worklog to Jira...
+[[service.submit WorklogRequest(issue_key='PROJ-1', time_spend='1h', date='01/02/2025', description='c')]]
+Successfully logged work to Jira!
+Insert to Google Sheets? (y/n) [y]: yes
+Inserting to Google Sheets...
+[[service.submit_to_sheets WorklogResult(issue_key='PROJ-1', issue_name='Fix login', date='01/02/2025', time_spend='1h', description='c')]]
+Error inserting to Google Sheets: quota exceeded

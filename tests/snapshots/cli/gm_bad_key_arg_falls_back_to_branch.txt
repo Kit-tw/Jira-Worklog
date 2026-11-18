@@ -1,0 +1,30 @@
+
+Initializing Jira Worklog CLI...
+
+--- Running Git Manual Issue Mode (-gm) ---
+Fetching Jira issue details for 'BAD-9'...
+[[jira.fetch_issue 'BAD-9']]
+Warning: Could not fetch Jira issue details for 'BAD-9': Fetch issue #BAD-9 error: 404
+Issue Key [PROJ-1]: 
+Fetching Jira issue details for 'PROJ-1'...
+[[jira.fetch_issue 'PROJ-1']]
+Jira Issue Found: Fix login
+
+==================================================
+              JIRA WORKLOG EDITOR                 
+==================================================
+Press [Enter] to accept the suggested value in brackets.
+Date (dd/mm/yyyy) [10/03/2025]: 
+Time spent (e.g. 3h, 20m) [45m]: 
+Comment [fix bug]: 
+
+--- Summary ---
+Issue Key  : PROJ-1
+Issue Name : Fix login
+Date       : 10/03/2025
+Time Spent : 45m
+Comment    : fix bug
+Google Sheets integration is available.
+
+Confirm and Log Work to Jira? (y/n) [y]: n
+Operation cancelled.

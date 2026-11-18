@@ -1,0 +1,39 @@
+
+Initializing Jira Worklog CLI...
+
+--- Running Auto Git Mode (-ga) ---
+Detected issue key from git branch: PROJ-1
+Fetching Jira issue details for 'PROJ-1'...
+[[jira.fetch_issue 'PROJ-1']]
+Jira Issue Found: Fix login
+
+Reflog entries (1 = newest):
+    #  Date        Time   Message
+  --------------------------------------------------------------
+    1  10/03/2025  10:00  commit: one
+    2  10/03/2025  09:00  checkout: start
+
+Start anchor (older, not logged) [2]: 
+End (newer, included) [1]: 
+
+Found 1 commit(s) in range.
+Post as (1) combined entry or (2) separate per commit? [1]: 2
+Issue Key [PROJ-1]: 
+Fetching Jira issue details for 'PROJ-1'...
+[[jira.fetch_issue 'PROJ-1']]
+Jira Issue Found: Fix login
+
+[1/1] ------------------------------------------------
+Date (dd/mm/yyyy) [10/03/2025]: bad
+Error: Invalid date format. Please use dd/mm/yyyy.
+Date (dd/mm/yyyy) [10/03/2025]: 
+Time spent (e.g. 3h, 20m) [1h]: 
+Comment [one]: 
+
+Issue: PROJ-1 | Date: 10/03/2025 | Time: 1h
+Comment: one
+Confirm and Log Work to Jira? (y/n) [y]: 
+
+Inserting worklog to Jira...
+[[service.submit WorklogRequest(issue_key='PROJ-1', time_spend='1h', date='10/03/2025', description='one')]]
+Successfully logged work to Jira!

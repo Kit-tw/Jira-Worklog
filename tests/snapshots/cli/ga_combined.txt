@@ -1,0 +1,57 @@
+
+Initializing Jira Worklog CLI...
+
+--- Running Auto Git Mode (-ga) ---
+Detected issue key from git branch: PROJ-1
+Fetching Jira issue details for 'PROJ-1'...
+[[jira.fetch_issue 'PROJ-1']]
+Jira Issue Found: Fix login
+
+Reflog entries (1 = newest):
+    #  Date        Time   Message
+  --------------------------------------------------------------
+    1  10/03/2025  11:15  merge feature-x: Fast-forward
+    2  10/03/2025  10:30  commit (amend): add login form validation
+    3  10/03/2025  09:40  commit: add login form
+    4  10/03/2025  09:00  checkout: moving from main to PROJ-1-login
+
+Start anchor (older, not logged) [4]: 
+End (newer, included) [1]: 
+
+Found 3 commit(s) in range.
+Post as (1) combined entry or (2) separate per commit? [1]: 
+Issue Key [PROJ-1]: 
+Fetching Jira issue details for 'PROJ-1'...
+[[jira.fetch_issue 'PROJ-1']]
+Jira Issue Found: Fix login
+
+==================================================
+              JIRA WORKLOG EDITOR                 
+==================================================
+Press [Enter] to accept the suggested value in brackets.
+
+Commits in range:
+  • add login form
+  • add login form validation
+  • feature-x (from merge)
+
+Date (dd/mm/yyyy) [10/03/2025]: 
+Time spent (e.g. 3h, 20m) [2h 15m]: 
+Comment (Enter to skip): 
+
+--- Summary ---
+Issue Key  : PROJ-1
+Issue Name : Fix login
+Date       : 10/03/2025
+Time Spent : 2h 15m
+Comment    : 
+
+Confirm and Log Work to Jira? (y/n) [y]: 
+
+Inserting worklog to Jira...
+[[service.submit WorklogRequest(issue_key='PROJ-1', time_spend='2h 15m', date='10/03/2025', description=None)]]
+Successfully logged work to Jira!
+Insert to Google Sheets? (y/n) [y]: 
+Inserting to Google Sheets...
+[[service.submit_to_sheets WorklogResult(issue_key='PROJ-1', issue_name='Fix login', date='10/03/2025', time_spend='2h 15m', description=None)]]
+Successfully inserted to Google Sheets!

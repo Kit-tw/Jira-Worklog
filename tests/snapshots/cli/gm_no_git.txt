@@ -1,0 +1,33 @@
+
+Initializing Jira Worklog CLI...
+
+--- Running Git Manual Issue Mode (-gm) ---
+Note: Could not calculate git details from reflog (Could not get git details: boom). Using defaults.
+Issue Key: PROJ-1
+Fetching Jira issue details for 'PROJ-1'...
+[[jira.fetch_issue 'PROJ-1']]
+Jira Issue Found: Fix login
+
+==================================================
+              JIRA WORKLOG EDITOR                 
+==================================================
+Press [Enter] to accept the suggested value in brackets.
+Date (dd/mm/yyyy) [01/02/2025]: 
+Time spent (e.g. 3h, 20m) []: 
+Error: Time spent cannot be empty.
+Time spent (e.g. 3h, 20m) []: 3h
+Comment []: 
+
+--- Summary ---
+Issue Key  : PROJ-1
+Issue Name : Fix login
+Date       : 01/02/2025
+Time Spent : 3h
+Comment    : 
+Google Sheets integration is not configured.
+
+Confirm and Log Work to Jira? (y/n) [y]: 
+
+Inserting worklog to Jira...
+[[service.submit WorklogRequest(issue_key='PROJ-1', time_spend='3h', date='01/02/2025', description=None)]]
+Successfully logged work to Jira!

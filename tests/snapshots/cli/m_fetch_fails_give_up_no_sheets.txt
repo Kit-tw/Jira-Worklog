@@ -1,0 +1,31 @@
+
+Initializing Jira Worklog CLI...
+
+--- Running Manual All Mode (-m) ---
+Issue Key: BAD-1
+Fetching Jira issue details for 'BAD-1'...
+[[jira.fetch_issue 'BAD-1']]
+Error fetching issue 'BAD-1': Fetch issue #BAD-1 error: 404
+Do you want to re-enter? (y/n) [y]: n
+
+==================================================
+              JIRA WORKLOG EDITOR                 
+==================================================
+Press [Enter] to accept the suggested value in brackets.
+Date (dd/mm/yyyy) [01/02/2025]: 
+Time spent (e.g. 3h, 20m): 1h
+Comment: 
+
+--- Summary ---
+Issue Key  : BAD-1
+Issue Name : N/A
+Date       : 01/02/2025
+Time Spent : 1h
+Comment    : 
+Google Sheets integration is not configured.
+
+Confirm and Log Work to Jira? (y/n) [y]: 
+
+Inserting worklog to Jira...
+[[service.submit WorklogRequest(issue_key='BAD-1', time_spend='1h', date='01/02/2025', description=None)]]
+Successfully logged work to Jira!

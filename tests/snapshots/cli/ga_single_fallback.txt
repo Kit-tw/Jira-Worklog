@@ -1,0 +1,39 @@
+
+Initializing Jira Worklog CLI...
+
+--- Running Auto Git Mode (-ga) ---
+Detected issue key from git branch: PROJ-1
+Fetching Jira issue details for 'PROJ-1'...
+[[jira.fetch_issue 'PROJ-1']]
+Jira Issue Found: Fix login
+Note: Not enough reflog entries for range selection. Using latest commit only.
+[1;33m================================================================================
+[WARNING] Calculated time spent from git is less than the minimum threshold.
+================================================================================[0m
+[1;33mAre you sure to add 5m to worklog? (y/n) [y]: [0m
+Issue Key [PROJ-1]: 
+Fetching Jira issue details for 'PROJ-1'...
+[[jira.fetch_issue 'PROJ-1']]
+Jira Issue Found: Fix login
+
+==================================================
+              JIRA WORKLOG EDITOR                 
+==================================================
+Press [Enter] to accept the suggested value in brackets.
+Date (dd/mm/yyyy) [10/03/2025]: 
+Time spent (e.g. 3h, 20m) [5m]: 
+Comment [quick]: 
+
+--- Summary ---
+Issue Key  : PROJ-1
+Issue Name : Fix login
+Date       : 10/03/2025
+Time Spent : 5m
+Comment    : quick
+
+Confirm and Log Work to Jira? (y/n) [y]: 
+
+Inserting worklog to Jira...
+[[service.submit WorklogRequest(issue_key='PROJ-1', time_spend='5m', date='10/03/2025', description='quick')]]
+Successfully logged work to Jira!
+Insert to Google Sheets? (y/n) [y]: n

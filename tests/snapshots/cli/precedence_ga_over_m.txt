@@ -1,0 +1,5 @@
+
+Initializing Jira Worklog CLI...
+
+--- Running Auto Git Mode (-ga) ---
+Error: Could not retrieve git branch name: no repo

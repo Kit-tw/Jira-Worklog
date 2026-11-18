@@ -1,0 +1,33 @@
+
+Initializing Jira Worklog CLI...
+
+--- Running Git Manual Issue Mode (-gm) ---
+Fetching Jira issue details for 'PROJ-2'...
+[[jira.fetch_issue 'PROJ-2']]
+Jira Issue Found: Add export
+
+==================================================
+              JIRA WORKLOG EDITOR                 
+==================================================
+Press [Enter] to accept the suggested value in brackets.
+Date (dd/mm/yyyy) [10/03/2025]: 
+Time spent (e.g. 3h, 20m) [45m]: 
+Comment [fix bug]: 
+
+--- Summary ---
+Issue Key  : PROJ-2
+Issue Name : Add export
+Date       : 10/03/2025
+Time Spent : 45m
+Comment    : fix bug
+Google Sheets integration is available.
+
+Confirm and Log Work to Jira? (y/n) [y]: 
+
+Inserting worklog to Jira...
+[[service.submit WorklogRequest(issue_key='PROJ-2', time_spend='45m', date='10/03/2025', description='fix bug')]]
+Successfully logged work to Jira!
+Insert to Google Sheets? (y/n) [y]: 
+Inserting to Google Sheets...
+[[service.submit_to_sheets WorklogResult(issue_key='PROJ-2', issue_name='Add export', date='10/03/2025', time_spend='45m', description='fix bug')]]
+Successfully inserted to Google Sheets!

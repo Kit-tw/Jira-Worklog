@@ -1,0 +1,33 @@
+
+Initializing Jira Worklog CLI...
+
+--- Running Git Manual Issue Mode (-gm) ---
+Fetching Jira issue details for 'PROJ-1'...
+[[jira.fetch_issue 'PROJ-1']]
+Jira Issue Found: Fix login
+[1;33m================================================================================
+[WARNING] Calculated time spent from git is less than the minimum threshold.
+================================================================================[0m
+[1;33mAre you sure to add 5m to worklog? (y/n) [y]: [0mn
+Enter time spent (e.g. 3h, 20m): 
+Error: Time spent cannot be empty.
+Enter time spent (e.g. 3h, 20m): 2h
+
+==================================================
+              JIRA WORKLOG EDITOR                 
+==================================================
+Press [Enter] to accept the suggested value in brackets.
+Date (dd/mm/yyyy) [10/03/2025]: 
+Time spent (e.g. 3h, 20m) [2h]: 
+Comment [tweak]: 
+
+--- Summary ---
+Issue Key  : PROJ-1
+Issue Name : Fix login
+Date       : 10/03/2025
+Time Spent : 2h
+Comment    : tweak
+Google Sheets integration is available.
+
+Confirm and Log Work to Jira? (y/n) [y]: n
+Operation cancelled.
