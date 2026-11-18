@@ -9,6 +9,7 @@ import util.common_util as common_util
 from util.git_util import GitUtil
 from util.jira_util import JiraUtil
 from util.worklog_service import WorklogService, WorklogRequest
+from util.cli_args import parse_args, MODE_AUTO_GIT, MODE_GIT_MANUAL, MODE_MANUAL
 
 class JiraWorklogCLI:
     def __init__(self):
@@ -23,17 +24,13 @@ class JiraWorklogCLI:
         if not self._validate_credentials():
             return
 
-        args = sys.argv[1:]
-        
-        if "-ga" in args:
+        cli_args = parse_args(sys.argv[1:])
+
+        if cli_args.mode == MODE_AUTO_GIT:
             await self.handle_auto_git()
-        elif "-gm" in args:
-            idx = args.index("-gm")
-            issue_key_arg = args[idx + 1] if idx + 1 < len(args) else None
-            if issue_key_arg and issue_key_arg.startswith("-"):
-                issue_key_arg = None
-            await self.handle_git_manual_issue(issue_key_arg)
-        elif "-m" in args:
+        elif cli_args.mode == MODE_GIT_MANUAL:
+            await self.handle_git_manual_issue(cli_args.issue_key_arg)
+        elif cli_args.mode == MODE_MANUAL:
             await self.handle_manual_all()
         else:
             print("Error: Unknown CLI flag.")
