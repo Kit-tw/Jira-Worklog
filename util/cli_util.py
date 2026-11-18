@@ -10,6 +10,7 @@ from util.jira_util import JiraUtil
 from util.worklog_service import WorklogService, WorklogRequest
 from util.cli_args import parse_args, MODE_AUTO_GIT, MODE_GIT_MANUAL, MODE_MANUAL
 import util.cli_git_context as git_context
+import util.cli_format as fmt
 
 class JiraWorklogCLI:
     def __init__(self):
@@ -144,16 +145,9 @@ class JiraWorklogCLI:
         shown = min(PAGE_SIZE, n)
 
         while True:
-            print("\nReflog entries (1 = newest):")
-            print(f"  {'#':>3}  {'Date':10}  {'Time':5}  Message")
-            print("  " + "-" * 62)
+            print(fmt.format_reflog_header())
             for ui_num in range(1, shown + 1):
-                arr_idx = n - ui_num
-                e = entries[arr_idx]
-                msg = e["message"]
-                if len(msg) > 50:
-                    msg = msg[:47] + "..."
-                print(f"  {ui_num:>3}  {e['date']:10}  {e['time_str']:5}  {msg}")
+                print(fmt.format_reflog_row(ui_num, entries[n - ui_num]))
 
             if shown < n:
                 print(f"  ... ({n - shown} more older entries, valid range 1-{n})")
@@ -209,10 +203,7 @@ class JiraWorklogCLI:
         if default_time:
             default_time = self.prompt_time_threshold_check(default_time, defaults.time_spend_minutes)
 
-        print("\n==================================================")
-        print("              JIRA WORKLOG EDITOR                 ")
-        print("==================================================")
-        print("Press [Enter] to accept the suggested value in brackets.")
+        print(fmt.EDITOR_BANNER)
 
         while True:
             user_date = input(f"Date (dd/mm/yyyy) [{default_date}]: ").strip()
@@ -231,16 +222,7 @@ class JiraWorklogCLI:
         user_comment = input(f"Comment [{default_comment}]: ").strip()
         comment_val = user_comment if user_comment else default_comment
 
-        print("\n--- Summary ---")
-        print(f"Issue Key  : {issue_key}")
-        print(f"Issue Name : {issue_name or 'N/A'}")
-        print(f"Date       : {date_val}")
-        print(f"Time Spent : {time_val}")
-        print(f"Comment    : {comment_val}")
-        if self.has_sheets:
-            print("Google Sheets integration is available.")
-        else:
-            print("Google Sheets integration is not configured.")
+        print(fmt.format_summary(issue_key, issue_name, date_val, time_val, comment_val, has_sheets=bool(self.has_sheets)))
 
         confirm_insert = input("\nConfirm and Log Work to Jira? (y/n) [y]: ").strip().lower()
         if confirm_insert not in ('', 'y', 'yes'):
@@ -256,10 +238,7 @@ class JiraWorklogCLI:
 
         default_date = common_util.get_currentdate_forentry()
 
-        print("\n==================================================")
-        print("              JIRA WORKLOG EDITOR                 ")
-        print("==================================================")
-        print("Press [Enter] to accept the suggested value in brackets.")
+        print(fmt.EDITOR_BANNER)
 
         while True:
             user_date = input(f"Date (dd/mm/yyyy) [{default_date}]: ").strip()
@@ -278,16 +257,7 @@ class JiraWorklogCLI:
         user_comment = input("Comment: ").strip()
         comment_val = user_comment
 
-        print("\n--- Summary ---")
-        print(f"Issue Key  : {issue_key}")
-        print(f"Issue Name : {issue_name or 'N/A'}")
-        print(f"Date       : {date_val}")
-        print(f"Time Spent : {time_val}")
-        print(f"Comment    : {comment_val}")
-        if self.has_sheets:
-            print("Google Sheets integration is available.")
-        else:
-            print("Google Sheets integration is not configured.")
+        print(fmt.format_summary(issue_key, issue_name, date_val, time_val, comment_val, has_sheets=bool(self.has_sheets)))
 
         confirm_insert = input("\nConfirm and Log Work to Jira? (y/n) [y]: ").strip().lower()
         if confirm_insert not in ('', 'y', 'yes'):
@@ -350,14 +320,11 @@ class JiraWorklogCLI:
                 print(f"\n[{i + 1}/{count}] ------------------------------------------------")
                 default_date = entry["date"]
                 default_time = entry["time_spend"]
-                default_comment = GitUtil.clean_reflog_message(entry["description"])
+                default_comment = fmt.clean_comment(entry["description"])
                 time_spend_mins = entry["time_spend_minutes"]
 
                 if entry["capped"]:
-                    raw_h = entry["raw_minutes"] // 60
-                    raw_m = entry["raw_minutes"] % 60
-                    raw_str = f"{raw_h}h {raw_m}m" if raw_m else f"{raw_h}h"
-                    print(f"\033[1;33m[INFO] Raw time was {raw_str}, capped to 8h.\033[0m")
+                    print(fmt.format_cap_info("time", entry["raw_minutes"]))
                     ack = input("\033[1;33mAccept 8h or enter a custom time (Enter = accept): \033[0m").strip()
                     if ack:
                         default_time = ack
@@ -381,8 +348,7 @@ class JiraWorklogCLI:
                 user_comment = input(f"Comment [{default_comment}]: ").strip()
                 comment_val = user_comment if user_comment else default_comment
 
-                print(f"\nIssue: {issue_key} | Date: {date_val} | Time: {time_val}")
-                print(f"Comment: {comment_val}")
+                print(fmt.format_entry_line(issue_key, date_val, time_val, comment_val))
                 confirm = input("Confirm and Log Work to Jira? (y/n) [y]: ").strip().lower()
                 if confirm not in ('', 'y', 'yes'):
                     print("Skipped.")
@@ -397,10 +363,7 @@ class JiraWorklogCLI:
             combined_minutes = range_time.time_spend_minutes
 
             if range_time.capped:
-                raw_h = range_time.raw_minutes // 60
-                raw_m = range_time.raw_minutes % 60
-                raw_str = f"{raw_h}h {raw_m}m" if raw_m else f"{raw_h}h"
-                print(f"\033[1;33m[INFO] Raw total was {raw_str}, capped to 8h.\033[0m")
+                print(fmt.format_cap_info("total", range_time.raw_minutes))
                 ack = input("\033[1;33mAccept 8h or enter a custom time (Enter = accept): \033[0m").strip()
                 if ack:
                     combined_time = ack
@@ -409,14 +372,9 @@ class JiraWorklogCLI:
 
             combined_date = entries[end_idx]["date"]
 
-            print("\n==================================================")
-            print("              JIRA WORKLOG EDITOR                 ")
-            print("==================================================")
-            print("Press [Enter] to accept the suggested value in brackets.")
+            print(fmt.EDITOR_BANNER)
 
-            print("\nCommits in range:")
-            for e in range_entries:
-                print(f"  • {GitUtil.clean_reflog_message(e['description'])}")
+            print(fmt.format_commit_bullets(range_entries))
 
             while True:
                 user_date = input(f"\nDate (dd/mm/yyyy) [{combined_date}]: ").strip()
@@ -434,12 +392,7 @@ class JiraWorklogCLI:
 
             comment_val = input("Comment (Enter to skip): ").strip()
 
-            print("\n--- Summary ---")
-            print(f"Issue Key  : {issue_key}")
-            print(f"Issue Name : {issue_name or 'N/A'}")
-            print(f"Date       : {date_val}")
-            print(f"Time Spent : {time_val}")
-            print(f"Comment    : {comment_val}")
+            print(fmt.format_summary(issue_key, issue_name, date_val, time_val, comment_val))
 
             confirm_insert = input("\nConfirm and Log Work to Jira? (y/n) [y]: ").strip().lower()
             if confirm_insert not in ('', 'y', 'yes'):
@@ -463,10 +416,7 @@ class JiraWorklogCLI:
 
         issue_key, issue_name = await self.prompt_and_fetch_issue_key(default_key=issue_key)
 
-        print("\n==================================================")
-        print("              JIRA WORKLOG EDITOR                 ")
-        print("==================================================")
-        print("Press [Enter] to accept the suggested value in brackets.")
+        print(fmt.EDITOR_BANNER)
 
         while True:
             user_date = input(f"Date (dd/mm/yyyy) [{default_date}]: ").strip()
@@ -485,12 +435,7 @@ class JiraWorklogCLI:
         user_comment = input(f"Comment [{default_comment}]: ").strip()
         comment_val = user_comment if user_comment else default_comment
 
-        print("\n--- Summary ---")
-        print(f"Issue Key  : {issue_key}")
-        print(f"Issue Name : {issue_name or 'N/A'}")
-        print(f"Date       : {date_val}")
-        print(f"Time Spent : {time_val}")
-        print(f"Comment    : {comment_val}")
+        print(fmt.format_summary(issue_key, issue_name, date_val, time_val, comment_val))
 
         confirm_insert = input("\nConfirm and Log Work to Jira? (y/n) [y]: ").strip().lower()
         if confirm_insert not in ('', 'y', 'yes'):
